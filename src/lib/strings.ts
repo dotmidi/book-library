@@ -15,11 +15,7 @@ export const t = {
   welcomeTitle: 'Your books, in your own Google Sheet',
   welcomeBody:
     'Scan the barcode on a book and it is added to your library. Everything is saved in a spreadsheet in your own Google Drive, which you can open or download any time.',
-  welcomePoints: [
-    'Scan with your phone camera, a barcode scanner, or type the ISBN',
-    'Your list lives in your Google Drive, not on someone else’s server',
-    'Works on iPhone, Android and computers',
-  ],
+  welcomePoints: ['Scan with your phone camera, a barcode scanner, or type the ISBN'],
   signInButton: 'Sign in with Google',
   signInHint: 'Google will ask to let this app create and use its own spreadsheet. It cannot see your other files.',
   signingIn: 'Connecting to your Google Drive…',

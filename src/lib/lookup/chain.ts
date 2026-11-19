@@ -32,6 +32,16 @@ export function isComplete(m: BookMetadata): boolean {
 }
 
 /**
+ * Which providers to ask for this ISBN, in order: specialists whose prefixes
+ * match (e.g. Japanese catalogues for 978-4…) first, then the general ones.
+ * Specialists for other regions are skipped, so they cost nothing.
+ */
+export function orderProviders(isbn13: string, providers: MetadataProvider[]): MetadataProvider[] {
+  const matches = (p: MetadataProvider) => p.prefixes?.some((pre) => isbn13.startsWith(pre));
+  return [...providers.filter((p) => p.prefixes?.length && matches(p)), ...providers.filter((p) => !p.prefixes?.length)];
+}
+
+/**
  * Ask providers in order. The first hit becomes the result; later providers are
  * only asked to fill blanks. Errors never throw: they move on to the next provider.
  */
@@ -41,9 +51,10 @@ export async function lookupIsbn(
   opts: { signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<LookupOutcome> {
   const outcome: LookupOutcome = { metadata: null, sources: [], errors: [] };
-  for (const p of providers) {
+  for (const p of orderProviders(isbn13, providers)) {
     if (outcome.metadata && isComplete(outcome.metadata)) break;
     if (opts.signal?.aborted) break;
+    if (p.lastResort && outcome.metadata) continue;
     try {
       const result = await withTimeout(p.lookup(isbn13, opts.signal), opts.timeoutMs ?? 15000);
       if (!result || isBlank(result.title)) continue;

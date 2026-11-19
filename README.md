@@ -18,7 +18,7 @@ Browser (installable PWA, static files on GitHub Pages)
  ├─ auth/      Google Identity Services token model; full-page redirect on iPhone Home Screen
  ├─ store/     books in memory + IndexedDB cache + outbox of unsaved changes
  ├─ sheets/    schema, column resolution, row ⇄ book mapping, batched writes
- ├─ lookup/    MetadataProvider chain: Open Library → Google Books → manual form
+ ├─ lookup/    region-aware chain: openBD · NDL · BnF · Open Library · Google Books · Crossref → manual form
  └─ scan/      camera (BarcodeDetector / zxing-wasm), feedback, scan session
         │                    │                              │
    Google OAuth      Sheets API + Drive API         openlibrary.org · Google Books
@@ -95,10 +95,31 @@ So a second device never creates a duplicate.
 
 ### Lookups
 
-- Open Library Books API (`jscmd=data`, plus `jscmd=details` for the language) is throttled to 1 request per second with
-  backoff on 429/5xx. Google Books (with a referrer-restricted key) fills the gaps.
-- Both allow browser (CORS) requests, so there's no proxy.
+The ISBN's registration group tells us where the book was published (`src/lib/isbnRegion.ts`: 978-4 Japan, 978-90/94
+Dutch, 978-605/975/9944 Turkish, 978-89/979-11 Korean, …). The app uses that to:
+
+1. ask region **specialists** first, and skip specialists for other regions, so they cost nothing;
+2. pre-fill the **language** when no source gives one, including books nobody knows. This makes manual entry of Dutch
+   and Turkish books quicker.
+
+| Source | Used for | Format | Notes |
+|---|---|---|---|
+| openBD | 978-4 (Japan) | JSON | covers most books sold in Japan, sometimes with a cover |
+| NDL Search | 978-4 (Japan) | XML | National Diet Library; no covers (blocked for other sites) |
+| BnF SRU | 978-2, 979-10 (French) | XML | Bibliothèque nationale de France |
+| Open Library | all | JSON | `jscmd=data` (+ `jscmd=details` for the language), 1 request/s, backoff on 429 |
+| Google Books | all | JSON | referrer-restricted API key |
+| Crossref | all, **last resort** | JSON | academic / museum / art books; only asked when nothing else found the book |
+
+- How results combine: the first source to find the book wins, and later sources only fill empty fields. So a Japanese
+  title from openBD is never replaced by a romanised one from Google.
+- The chain stops as soon as authors, language, cover, pages, year and publisher are all filled in.
+- All sources allow browser (CORS) requests, so there's no proxy.
 - Results are cached in IndexedDB. A "not found" result is cached for a day.
+- Checked and not used:
+  - Library of Congress: behind a bot check.
+  - DNB (German national library): refuses browser requests.
+  - Wikidata: too sparse, and needs hyphenated ISBNs.
 
 ## Local development
 
@@ -164,6 +185,9 @@ One-time repo setup:
    limits.
 2. Add it to `defaultProviders()` in `src/lib/lookup/service.ts`, in the order it should be tried. Earlier providers
    win; later ones only fill blank fields.
+   - For a regional catalogue, set `prefixes = ['97889', '97911']`. It is then asked first for those ISBNs and never
+     for others.
+   - For a sparse fallback, set `lastResort = true`. It is then only asked when nothing else found the book.
 3. The API must allow CORS. If it doesn't, put a tiny Cloudflare Worker in front of it.
 4. Add a mapping test in `tests/lookup.test.ts`.
 

@@ -15,7 +15,7 @@ import {
 import { FIELDS, columnLetter, matchHeader, normalizeHeader, quoteSheet } from '../src/lib/sheets/schema';
 import { emptyBook, type Book } from '../src/lib/types';
 
-const STANDARD_HEADER = FIELDS.map((f) => f.key);
+const STANDARD_HEADER: string[] = FIELDS.map((f) => f.key);
 
 function colsFor(header: string[]): ColumnMap {
   return resolveColumns(header, []).columns;

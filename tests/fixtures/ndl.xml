@@ -1,0 +1,58 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/" xmlns:dcndl="http://ndl.go.jp/dcndl/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="2.0">
+  <channel>
+    <title>9784062938532 - 国立国会図書館サーチ OpenSearch</title>
+    <link>https://ios-v2-prod-eks-alb.ndlsearch.ndl.go.jp/api/opensearch?isbn=9784062938532&amp;cnt=1</link>
+    <description>Search results for isbn=9784062938532 cnt=1</description>
+    <language>ja</language>
+    <openSearch:totalResults>1</openSearch:totalResults>
+    <openSearch:startIndex>1</openSearch:startIndex>
+    <openSearch:itemsPerPage>1</openSearch:itemsPerPage>
+    <item>
+      <title>その可能性はすでに考えた</title>
+      <link>https://ndlsearch.ndl.go.jp/books/R100000002-I028791673</link>
+      <description><![CDATA[<p>講談社,2018,978-4-06-293853-2<p><ul><li>タイトル：その可能性はすでに考えた</li><li>タイトル（読み）：ソノ カノウセイ ワ スデニ カンガエタ</li><li>責任表示：井上真偽 [著]</li><li>シリーズ名：講談社文庫 ; い144-1</li><li>シリーズ名（読み）：コウダンシャ ブンコ ; イ-144-1</li><li>NDC(10)：913.6</li></ul>]]></description>
+      <author>井上, 真偽,井上真偽 [著]</author>
+      <category>図書</category>
+      <category>紙</category>
+      <guid isPermaLink="true">https://ndlsearch.ndl.go.jp/books/R100000002-I028791673</guid>
+      <pubDate>Tue, 27 Feb 2018 19:17:48 +0900</pubDate>
+      <dc:title>その可能性はすでに考えた</dc:title>
+      <dcndl:titleTranscription>ソノ カノウセイ ワ スデニ カンガエタ</dcndl:titleTranscription>
+      <dc:creator>井上, 真偽</dc:creator>
+      <dcndl:creatorTranscription>イノウエ, マギ</dcndl:creatorTranscription>
+      <dcndl:seriesTitle>講談社文庫 ; い144-1</dcndl:seriesTitle>
+      <dcndl:seriesTitleTranscription>コウダンシャ ブンコ ; イ-144-1</dcndl:seriesTitleTranscription>
+      <dc:publisher>講談社</dc:publisher>
+      <dcndl:publicationPlace>JP</dcndl:publicationPlace>
+      <dc:date xsi:type="dcterms:W3CDTF">2018</dc:date>
+      <dcterms:issued>2018.2</dcterms:issued>
+      <dcndl:price>760円</dcndl:price>
+      <dc:extent>391p</dc:extent>
+      <dc:identifier xsi:type="dcndl:ISBN">978-4-06-293853-2</dc:identifier>
+      <dc:identifier xsi:type="dcndl:NDLBibID">028791673</dc:identifier>
+      <dc:identifier xsi:type="dcndl:JPNO">23012030</dc:identifier>
+      <dc:identifier xsi:type="dcndl:TOHANMARCNO">33721358</dc:identifier>
+      <dc:subject xsi:type="dcndl:NDLC">KH844</dc:subject>
+      <dc:subject xsi:type="dcndl:NDC10">913.6</dc:subject>
+      <dc:description>2015年刊の加筆修正</dc:description>
+      <rdfs:seeAlso rdf:resource="https://www.library.city.sapporo.jp/licsxp-opac/WOpacMsgNewListToTifTilDetailAction.do?tilcod=1008001242770"/>
+      <rdfs:seeAlso rdf:resource="https://www.lib.city.saitama.jp/bookdetail?num=2773986&amp;ctg=1"/>
+      <rdfs:seeAlso rdf:resource="https://www.library.city.chiba.jp/licsxp-opac/WOpacTifSchCmpdDispAction.do"/>
+      <rdfs:seeAlso rdf:resource="https://opac.lib.city.yokohama.lg.jp/winj/opac/switch-detail-iccap.do?bibid=1113563266"/>
+      <rdfs:seeAlso rdf:resource="https://www.lib.sagamihara.kanagawa.jp/TOSHOW/asp/WwShousaiKen.aspx?FCode=2089502"/>
+      <rdfs:seeAlso rdf:resource="https://opac.pref-lib.niigata.niigata.jp/winj/opac/switch-detail-iccap.do?bibid=1120106327"/>
+      <rdfs:seeAlso rdf:resource="https://www.library.pref.ishikawa.lg.jp/wo/opc_srh/srh_detail/1000001111182/"/>
+      <rdfs:seeAlso rdf:resource="https://www.library-archives.pref.fukui.lg.jp/wo/opc_srh/srh_detail/1110315171/"/>
+      <rdfs:seeAlso rdf:resource="http://www.library.pref.gifu.lg.jp/winj/opac/switch-detail-iccap.do?bibid=1190289176"/>
+      <rdfs:seeAlso rdf:resource="https://www.oml.city.osaka.lg.jp/licsxp-opac/WOpacMsgNewListToTifTilDetailAction.do?tilcod=1000014447430"/>
+      <rdfs:seeAlso rdf:resource="https://opac.libnet.pref.okayama.jp/licsxp-opac/WOpacMsgNewListToTifTilDetailAction.do?tilcod=1009812190299"/>
+      <rdfs:seeAlso rdf:resource="http://www.library.city.hiroshima.jp/winj/opac/switch-detail-iccap.do?bibid=1110225232"/>
+      <rdfs:seeAlso rdf:resource="https://alislibopac.bunmori.tokushima.jp/winj/opac/switch-detail-iccap.do?bibid=1110162208"/>
+      <rdfs:seeAlso rdf:resource="https://ndlsearch.ndl.go.jp/books/R100000002-I028791673"/>
+      <rdfs:seeAlso rdf:resource="https://cir.nii.ac.jp/crid/1970023484842867456"/>
+      <rdfs:seeAlso rdf:resource="https://www.books.or.jp/book-details/06A0000000000014518O"/>
+      <rdfs:seeAlso rdf:resource="https://www.books.or.jp/book-details/9784062938532"/>
+      <dc:description> 2018</dc:description>
+    </item>
+  </channel>
+</rss>

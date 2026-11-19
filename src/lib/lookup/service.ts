@@ -5,10 +5,29 @@ import { lookupIsbn, type LookupOutcome } from './chain';
 import { GoogleBooksProvider } from './googlebooks';
 import { OpenLibraryProvider } from './openlibrary';
 import type { MetadataProvider } from './provider';
+import { OpenBDProvider } from './openbd';
+import { NdlProvider } from './ndl';
+import { BnfProvider } from './bnf';
+import { CrossrefProvider } from './crossref';
+import { guessLanguage } from '../isbnRegion';
 
-/** The fallback chain, in order. Add new providers here. */
+/**
+ * Every source, in order. Region specialists (with `prefixes`) are moved to the
+ * front for matching ISBNs and skipped for others; see orderProviders().
+ * Add new providers here.
+ */
 export function defaultProviders(): MetadataProvider[] {
-  return [new OpenLibraryProvider(), new GoogleBooksProvider(config.booksApiKey)];
+  return [
+    // Japan (978-4…)
+    new OpenBDProvider(),
+    new NdlProvider(),
+    // French (978-2…, 979-10…)
+    new BnfProvider(),
+    // Everything
+    new OpenLibraryProvider(),
+    new GoogleBooksProvider(config.booksApiKey),
+    new CrossrefProvider(),
+  ];
 }
 
 let providers: MetadataProvider[] | null = null;
@@ -44,6 +63,9 @@ export function metadataToBook(meta: BookMetadata | null, isbn13: string, isbn10
     b.language = meta.language ?? '';
     b.cover_url = meta.cover_url ?? '';
   }
+  // No source gave a language (or none knew the book): guess it from the ISBN's
+  // country group, e.g. 978-90… → Dutch, 978-605… → Turkish, 978-4… → Japanese.
+  if (!b.language) b.language = guessLanguage(isbn13);
   b.needs_details = !b.title;
   return b;
 }
