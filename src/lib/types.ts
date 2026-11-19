@@ -1,6 +1,3 @@
-export type KnownStatus = 'owned' | 'lent' | 'wishlist' | 'gone';
-export const KNOWN_STATUSES: KnownStatus[] = ['owned', 'lent', 'wishlist', 'gone'];
-
 /** One row of the Books tab. Field names match the sheet's column headers. */
 export interface Book {
   id: string;
@@ -18,8 +15,6 @@ export interface Book {
   tags: string[];
   notes: string;
   copies: number;
-  /** Usually a KnownStatus, but hand edits may put anything here. */
-  status: string;
   lent_to: string;
   /** yyyy-mm-dd or '' */
   lent_since: string;
@@ -62,7 +57,6 @@ export function emptyBook(): Book {
     tags: [],
     notes: '',
     copies: 1,
-    status: 'owned',
     lent_to: '',
     lent_since: '',
     date_added: '',

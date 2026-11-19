@@ -120,7 +120,6 @@ describe('rowToBook / rowsToBooks', () => {
       language: 'eng',
       tags: 'children, favourite',
       copies: 2,
-      status: 'Lent',
       lent_to: 'Ayşe',
       lent_since: isoToSerial('2026-11-01'),
       date_added: isoToSerial('2026-10-15'),
@@ -136,7 +135,6 @@ describe('rowToBook / rowsToBooks', () => {
       language: 'English',
       tags: ['children', 'favourite'],
       copies: 2,
-      status: 'lent',
       lent_to: 'Ayşe',
       lent_since: '2026-11-01',
       date_added: '2026-10-15',
@@ -152,7 +150,6 @@ describe('rowToBook / rowsToBooks', () => {
       year: 'maart 1947',
       pages: '1.024 blz',
       copies: 'twee',
-      status: '',
       date_added: '19-11-2026',
       needs_details: 'yes',
     });
@@ -163,14 +160,18 @@ describe('rowToBook / rowsToBooks', () => {
     expect(b.year).toBe(1947);
     expect(b.pages).toBe(1024);
     expect(b.copies).toBe(1);
-    expect(b.status).toBe('owned');
     expect(b.date_added).toBe('2026-11-19');
     expect(b.needs_details).toBe(true);
   });
 
-  it('keeps unknown status text as-is', () => {
-    const b = rowToBook(rowFor(STANDARD_HEADER, { title: 'X', status: 'Bij oma' }), cols).book!;
-    expect(b.status).toBe('Bij oma');
+  it('ignores the old "status" column in sheets made before it was removed', () => {
+    const header = ['id', 'title', 'status', 'lent_to'];
+    const r = resolveColumns(header, [{ field: 'status', columnIndex: 2 }]);
+    expect(Object.values(r.columns)).not.toContain(2);
+    expect(r.ignoredTags).toEqual([{ field: 'status', columnIndex: 2 }]);
+    const b = rowToBook(['x1', 'Dune', 'lent', 'Ayşe'], r.columns).book!;
+    expect(b).toMatchObject({ title: 'Dune', lent_to: 'Ayşe' });
+    expect('status' in b).toBe(false);
   });
 
   it('moves an ISBN-10 typed into the isbn13 column', () => {

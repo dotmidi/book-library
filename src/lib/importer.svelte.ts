@@ -59,7 +59,6 @@ class Importer {
           tags: b.tags,
           notes: b.notes,
           copies: b.copies,
-          status: b.status,
           date_added: b.date_added,
         });
         this.done++;

@@ -14,7 +14,7 @@ export const APP_PROPERTY = 'bookLibrary';
 
 export type FieldKey = BookField | 'cover_preview';
 
-export type FieldKind = 'text' | 'isbn' | 'list' | 'int' | 'date' | 'bool' | 'status' | 'formula';
+export type FieldKind = 'text' | 'isbn' | 'list' | 'int' | 'date' | 'bool' | 'formula';
 
 export interface FieldDef {
   key: FieldKey;
@@ -45,7 +45,6 @@ export const FIELDS: FieldDef[] = [
   { key: 'tags', kind: 'list', sep: ', ', aliases: ['tag', 'labels', 'etiketten', 'etiket', 'genre', 'categories'], width: 140 },
   { key: 'notes', kind: 'text', aliases: ['note', 'notities', 'opmerkingen', 'notlar', 'not', 'comments'], width: 200 },
   { key: 'copies', kind: 'int', aliases: ['copy', 'aantal', 'exemplaren', 'adet', 'quantity', 'qty'], width: 60 },
-  { key: 'status', kind: 'status', aliases: ['durum'], width: 80 },
   { key: 'lent_to', kind: 'text', aliases: ['lent', 'uitgeleend aan', 'borrower', 'odunc'], width: 110 },
   { key: 'lent_since', kind: 'date', aliases: ['uitgeleend sinds', 'lent on', 'lent date'], width: 100 },
   { key: 'date_added', kind: 'date', aliases: ['added', 'toegevoegd', 'eklenme tarihi', 'date'], width: 100 },

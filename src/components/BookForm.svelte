@@ -5,7 +5,7 @@
   import { parseIsbn } from '../lib/isbn';
   import { COMMON_LANGUAGES, languageName } from '../lib/languages';
   import { uniqueSorted } from '../lib/search';
-  import { KNOWN_STATUSES, type Book } from '../lib/types';
+  import { todayIso, type Book } from '../lib/types';
 
   let {
     book,
@@ -81,9 +81,9 @@
       tags: f.tagsText.split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean),
       notes: f.notes.trim(),
       copies: Math.max(1, toInt(String(f.copies)) ?? 1),
-      status: f.status,
-      lent_to: f.status === 'lent' ? f.lent_to.trim() : '',
-      lent_since: f.status === 'lent' ? f.lent_since : '',
+      lent_to: f.lent_to.trim(),
+      // Keep the original lending date; start one when a name is newly filled in.
+      lent_since: f.lent_to.trim() ? f.lent_since || todayIso() : '',
     };
     out.needs_details = !out.title;
     busy = true;
@@ -157,20 +157,9 @@
         <input id="copies-{uid}" type="number" min="1" bind:value={f.copies} inputmode="numeric" />
       </div>
     </div>
-    <div class="grid2">
-      <div class="field">
-        <label for="status-{uid}">{t.fieldLabels.status}</label>
-        <select id="status-{uid}" bind:value={f.status}>
-          {#each KNOWN_STATUSES as s}<option value={s}>{t.status[s]}</option>{/each}
-          {#if !KNOWN_STATUSES.includes(f.status as never)}<option value={f.status}>{f.status}</option>{/if}
-        </select>
-      </div>
-      {#if f.status === 'lent'}
-        <div class="field">
-          <label for="lentto-{uid}">{t.fieldLabels.lent_to}</label>
-          <input id="lentto-{uid}" bind:value={f.lent_to} autocomplete="off" />
-        </div>
-      {/if}
+    <div class="field">
+      <label for="lentto-{uid}">{t.fieldLabels.lent_to}</label>
+      <input id="lentto-{uid}" bind:value={f.lent_to} autocomplete="off" />
     </div>
     <div class="field">
       <label for="notes-{uid}">{t.fieldLabels.notes}</label>

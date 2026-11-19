@@ -18,13 +18,13 @@
   async function lend(e: Event) {
     e.preventDefault();
     if (!book || !lendName.trim()) return;
-    await library.update(book.id, { status: 'lent', lent_to: lendName.trim(), lent_since: todayIso() });
+    await library.update(book.id, { lent_to: lendName.trim(), lent_since: todayIso() });
     lending = false;
     lendName = '';
   }
 
   async function returned() {
-    if (book) await library.update(book.id, { status: 'owned', lent_to: '', lent_since: '' });
+    if (book) await library.update(book.id, { lent_to: '', lent_since: '' });
   }
 
   async function remove() {
@@ -81,7 +81,7 @@
         {#if book.subtitle}<p class="subtitle">{book.subtitle}</p>{/if}
         {#if book.authors.length}<p class="muted">{t.by} {book.authors.join(', ')}</p>{/if}
         <div class="row badges">
-          <span class="chip" class:lent={book.status === 'lent'}>{t.status[book.status] ?? book.status}</span>
+          {#if book.lent_to}<span class="chip lent">{t.lentOut}</span>{/if}
           {#if book.needs_details || !book.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
         </div>
         <div class="row actions">
@@ -95,7 +95,7 @@
 
     <section class="card lendcard">
       <h2>{t.lending}</h2>
-      {#if book.status === 'lent'}
+      {#if book.lent_to}
         <p>{t.lentTo(book.lent_to || '?', book.lent_since)}</p>
         <button onclick={returned}>{t.markReturned}</button>
       {:else if lending}

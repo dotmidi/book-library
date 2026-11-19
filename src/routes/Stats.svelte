@@ -16,13 +16,12 @@
     return [...m.values()].sort((a, b) => b.value - a.value);
   }
 
-  const books = $derived(library.books.filter((b) => b.status !== 'wishlist'));
+  const books = $derived(library.books);
   const total = $derived(books.length);
   const copies = $derived(books.reduce((n, b) => n + (b.copies || 1), 0));
-  const lent = $derived(books.filter((b) => b.status === 'lent').length);
+  const lent = $derived(books.filter((b) => b.lent_to).length);
   const byLanguage = $derived(countBy(books.map((b) => b.language)));
   const byLocation = $derived(countBy(books.map((b) => b.location)));
-  const byStatus = $derived(countBy(library.books.map((b) => t.status[b.status] ?? b.status)));
 
   const perMonth = $derived.by(() => {
     const now = new Date();
@@ -87,7 +86,6 @@
     {@render bars(t.byLanguage, byLanguage)}
     {@render bars(t.byLocation, byLocation)}
   </div>
-  {@render bars(t.byStatus, byStatus)}
 </div>
 
 <style>

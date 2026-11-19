@@ -68,7 +68,7 @@ If you scan a book that's already in your library, the app says so. Tap **Add an
 ## 4. Your library
 
 - **Library** shows all your books. Search by title, author or ISBN.
-- Use the filters to show only one **location** (e.g. "Living room"), **tag** or **status**. Switch between **Covers** and
+- Use the filters to show only one **location** (e.g. "Living room" or "Istanbul") or **tag**, and sort by recently added, title, author or year. Switch between **Covers** and
   **List**.
 - Tap a book to see its details, **Edit** it, or **Delete** it.
 - **Lending:** on a book's page, tap **Lend this book** and type who has it. When it comes back, tap **It's back**.

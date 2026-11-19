@@ -55,7 +55,6 @@ export function parseCsvText(text: string): CsvParseResult {
       }
       b.isbn13 = '';
     }
-    if (cols.status === undefined) b.status = 'owned';
     if (!b.title) result.needLookup.push(b);
     else result.books.push(b);
   });

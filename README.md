@@ -54,14 +54,14 @@ So a second device never creates a duplicate.
 ### The sheet
 
 **Tab `Books`**, frozen header row:
-`id, isbn13, isbn10, title, subtitle, authors, publisher, year, pages, language, cover_url, cover_preview, location, tags, notes, copies, status, lent_to, lent_since, date_added, needs_details`
+`id, isbn13, isbn10, title, subtitle, authors, publisher, year, pages, language, cover_url, cover_preview, location, tags, notes, copies, lent_to, lent_since, date_added, needs_details`
 
 | Column | Format |
 |---|---|
 | `authors` | separated by `; ` |
 | `tags` | separated by `, ` |
 | `language` | readable English name ("Dutch") |
-| `status` | `owned` / `lent` / `wishlist` / `gone` (other hand-typed values are kept as they are) |
+| `lent_to` | a name means the book is lent out; empty means it is at home |
 | `lent_since`, `date_added` | real date cells (`yyyy-mm-dd`) |
 | `needs_details` | checkbox |
 | `cover_preview` | `=IFERROR(IMAGE(INDEX(K:K,ROW())),"")`. It uses `ROW()`, so the same formula works on every row, and Sheets updates `K:K` if columns move. |

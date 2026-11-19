@@ -125,16 +125,6 @@ function parseList(v: unknown, def: FieldDef): string[] {
   return s.split(sep).map((x) => x.trim()).filter(Boolean);
 }
 
-export function normalizeStatus(v: unknown): string {
-  const s = parseText(v).toLowerCase();
-  if (!s) return 'owned';
-  if (['owned', 'own', 'have', 'in bezit', 'var'].includes(s)) return 'owned';
-  if (['lent', 'lent out', 'uitgeleend', 'loaned', 'odunc', 'ödünç'].includes(s)) return 'lent';
-  if (['wishlist', 'wish', 'wanted', 'want', 'verlanglijst', 'istek'].includes(s)) return 'wishlist';
-  if (['gone', 'sold', 'given away', 'weg', 'verkocht', 'weggegeven'].includes(s)) return 'gone';
-  return parseText(v);
-}
-
 export interface ParsedRow {
   book?: Book;
   /** The row had no id (or a duplicate) and we generated one: write it back. */
@@ -178,9 +168,6 @@ export function rowToBook(row: unknown[], cols: ColumnMap): ParsedRow {
         break;
       case 'bool':
         (book[key] as boolean) = parseBool(v);
-        break;
-      case 'status':
-        book.status = normalizeStatus(v);
         break;
     }
   }
@@ -297,7 +284,6 @@ export function fieldCell(key: FieldKey, book: Book, cols: ColumnMap): CellData 
     }
     case 'bool':
       return { userEnteredValue: { boolValue: Boolean(v) }, dataValidation: { condition: { type: 'BOOLEAN' } } };
-    case 'status':
     case 'text':
     default:
       return v ? { userEnteredValue: { stringValue: String(v) } } : {};

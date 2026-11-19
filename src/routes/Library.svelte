@@ -3,7 +3,7 @@
   import { library } from '../lib/store/library.svelte';
   import { t } from '../lib/strings';
   import { displayTitle, fold, matchesQuery, sortKeyAuthor, uniqueSorted } from '../lib/search';
-  import { KNOWN_STATUSES, type Book } from '../lib/types';
+  import type { Book } from '../lib/types';
 
   type Sort = 'recent' | 'title' | 'author' | 'year';
   type View = 'grid' | 'list';
@@ -27,7 +27,6 @@
   let query = $state(load<string>('bl.q', ''));
   let location = $state(load<string>('bl.loc', ''));
   let tag = $state(load<string>('bl.tag', ''));
-  let status = $state(load<string>('bl.status', ''));
   let sort = $state<Sort>(load('bl.sort', 'recent'));
   let view = $state<View>(load('bl.view', 'grid'));
   let limit = $state(120);
@@ -36,23 +35,20 @@
     persist('bl.q', query);
     persist('bl.loc', location);
     persist('bl.tag', tag);
-    persist('bl.status', status);
     persist('bl.sort', sort, true);
     persist('bl.view', view, true);
   });
 
   const locations = $derived(uniqueSorted(library.books.map((b) => b.location)));
   const tags = $derived(uniqueSorted(library.books.flatMap((b) => b.tags)));
-  const extraStatuses = $derived(uniqueSorted(library.books.map((b) => b.status)).filter((s) => !KNOWN_STATUSES.includes(s as never)));
-  const filtersOn = $derived(Boolean(query || location || tag || status));
+  const filtersOn = $derived(Boolean(query || location || tag));
 
   const filtered = $derived.by(() => {
     const out = library.books.filter(
       (b) =>
         matchesQuery(b, query) &&
         (!location || b.location.toLowerCase() === location.toLowerCase()) &&
-        (!tag || b.tags.some((x) => x.toLowerCase() === tag.toLowerCase())) &&
-        (!status || (status === '__needs' ? b.needs_details || !b.title : b.status === status)),
+        (!tag || b.tags.some((x) => x.toLowerCase() === tag.toLowerCase())),
     );
     const cmp: Record<Sort, (a: Book, b: Book) => number> = {
       recent: (a, b) => (b.date_added || '').localeCompare(a.date_added || ''),
@@ -70,7 +66,6 @@
     query = '';
     location = '';
     tag = '';
-    status = '';
   }
 </script>
 
@@ -105,12 +100,6 @@
           {#each tags as tg}<option value={tg}>{tg}</option>{/each}
         </select>
       {/if}
-      <select bind:value={status} aria-label={t.fieldLabels.status}>
-        <option value="">{t.allStatuses}</option>
-        {#each KNOWN_STATUSES as s}<option value={s}>{t.status[s]}</option>{/each}
-        {#each extraStatuses as s}<option value={s}>{s}</option>{/each}
-        <option value="__needs">{t.needsDetailsFilter}</option>
-      </select>
       <select bind:value={sort} aria-label="Sort">
         <option value="recent">{t.sortRecent}</option>
         <option value="title">{t.sortTitle}</option>
@@ -135,7 +124,7 @@
               <span class="ttitle">{displayTitle(b, t.untitled)}</span>
               {#if b.authors.length}<span class="tauthor muted">{b.authors[0]}</span>{/if}
               <span class="badges">
-                {#if b.status === 'lent'}<span class="chip lent">{t.status.lent}</span>{/if}
+                {#if b.lent_to}<span class="chip lent">{t.lentOut}</span>{/if}
                 {#if b.needs_details || !b.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
                 {#if b.copies > 1}<span class="chip">×{b.copies}</span>{/if}
               </span>
@@ -154,8 +143,7 @@
                 <span class="muted small">{[b.authors.join(', '), b.year].filter(Boolean).join(' · ')}</span>
                 <span class="badges">
                   {#if b.location}<span class="chip">{b.location}</span>{/if}
-                  {#if b.status === 'lent'}<span class="chip lent">{t.lentTo(b.lent_to, '')}</span>{/if}
-                  {#if b.status === 'wishlist' || b.status === 'gone'}<span class="chip">{t.status[b.status]}</span>{/if}
+                  {#if b.lent_to}<span class="chip lent">{t.lentTo(b.lent_to, '')}</span>{/if}
                   {#if b.needs_details || !b.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
                   {#if b.copies > 1}<span class="chip">×{b.copies}</span>{/if}
                 </span>

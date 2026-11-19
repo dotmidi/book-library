@@ -47,8 +47,6 @@ export const t = {
   clearFilters: 'Clear filters',
   allLocations: 'All locations',
   allTags: 'All tags',
-  allStatuses: 'Any status',
-  needsDetailsFilter: 'Needs details',
   sortRecent: 'Recently added',
   sortTitle: 'Title A–Z',
   sortAuthor: 'Author A–Z',
@@ -59,14 +57,6 @@ export const t = {
   refresh: 'Refresh',
   needsDetailsBadge: 'Needs details',
   untitled: 'Untitled book',
-
-  // statuses
-  status: {
-    owned: 'In my library',
-    lent: 'Lent out',
-    wishlist: 'Wish list',
-    gone: 'Given away / sold',
-  } as Record<string, string>,
 
   // add page
   addTitle: 'Add books',
@@ -122,7 +112,6 @@ export const t = {
     tags: 'Tags',
     notes: 'Notes',
     copies: 'Copies',
-    status: 'Status',
     cover_url: 'Cover image link',
     date_added: 'Added on',
     lent_to: 'Lent to',
@@ -158,7 +147,6 @@ export const t = {
   lentOut: 'Lent out',
   byLanguage: 'By language',
   byLocation: 'By location',
-  byStatus: 'By status',
   perMonth: 'Added per month',
   unknown: 'Not set',
 
