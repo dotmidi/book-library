@@ -83,7 +83,7 @@ export function locationFlag(location: string): string {
 }
 
 /** Countries (and other locations already used) matching what is typed so far. */
-export function suggestLocations(query: string, used: string[], limit = 8): { label: string; value: string; flag: string }[] {
+export function suggestLocations(query: string, used: string[], limit = 400): { label: string; value: string; flag: string }[] {
   const q = fold(query);
   const out: { label: string; value: string; flag: string }[] = [];
   const seen = new Set<string>();

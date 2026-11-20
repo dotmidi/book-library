@@ -7,8 +7,11 @@
   let { value = $bindable(''), id }: { value?: string; id: string } = $props();
   let open = $state(false);
   let active = $state(-1);
+  let wrapper: HTMLDivElement | undefined = $state();
+  let list: HTMLUListElement | undefined = $state();
 
   const used = $derived(uniqueSorted(library.books.map((b) => b.location)));
+  // All matching countries (≈250 when nothing is typed); the list scrolls.
   const suggestions = $derived(open ? suggestLocations(value, used) : []);
   const flag = $derived(locationFlag(value));
 
@@ -23,9 +26,11 @@
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       active = (active + 1) % suggestions.length;
+      scrollActive();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       active = (active - 1 + suggestions.length) % suggestions.length;
+      scrollActive();
     } else if (e.key === 'Enter' && active >= 0) {
       e.preventDefault();
       pick(suggestions[active].value);
@@ -33,9 +38,19 @@
       open = false;
     }
   }
+
+  function scrollActive() {
+    queueMicrotask(() => list?.querySelectorAll('li')[active]?.scrollIntoView({ block: 'nearest' }));
+  }
+
+  // Close only when focus leaves the whole control (so scrolling or clicking the list keeps it open).
+  function onFocusOut(e: FocusEvent) {
+    const next = e.relatedTarget as Node | null;
+    if (!next || !wrapper?.contains(next)) open = false;
+  }
 </script>
 
-<div class="loc">
+<div class="loc" bind:this={wrapper} onfocusout={onFocusOut}>
   <div class="field-wrap">
     {#if flag}<span class="flag" aria-hidden="true">{flag}</span>{/if}
     <input
@@ -48,19 +63,20 @@
       aria-expanded={suggestions.length > 0}
       aria-controls="{id}-list"
       onfocus={() => (open = true)}
+      onclick={() => (open = true)}
       oninput={() => {
         open = true;
         active = -1;
       }}
-      onblur={() => setTimeout(() => (open = false), 150)}
       onkeydown={onKey}
     />
   </div>
   {#if suggestions.length}
-    <ul class="suggest" id="{id}-list" role="listbox">
-      {#each suggestions as s, i}
+    <!-- tabindex lets the list (and its scrollbar) take focus without closing it -->
+    <ul class="suggest" id="{id}-list" role="listbox" tabindex="-1" bind:this={list}>
+      {#each suggestions as s, i (s.value)}
         <li role="option" aria-selected={i === active}>
-          <button type="button" class:active={i === active} onmousedown={(e) => e.preventDefault()} onclick={() => pick(s.value)}>
+          <button type="button" tabindex="-1" class:active={i === active} onmousedown={(e) => e.preventDefault()} onclick={() => pick(s.value)}>
             <span class="flag">{s.flag || '📍'}</span>{s.label}
           </button>
         </li>
@@ -88,7 +104,7 @@
   }
   .suggest {
     position: absolute;
-    z-index: 15;
+    z-index: 40;
     left: 0;
     right: 0;
     top: calc(100% + 4px);
@@ -99,8 +115,13 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     box-shadow: var(--shadow);
-    max-height: 16rem;
+    max-height: min(18rem, 45vh);
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .suggest:focus {
+    outline: none;
   }
   .suggest button {
     width: 100%;
