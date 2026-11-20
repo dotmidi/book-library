@@ -21,7 +21,7 @@
     <img {src} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror={() => (failed = true)} />
   {:else}
     <div class="placeholder">
-      <span class="ptitle">{book.title || book.isbn13 || '?'}</span>
+      <span class="ptitle">{book.title || book.isbn13 || book.barcode || '?'}</span>
       {#if book.authors[0]}<span class="pauthor">{book.authors[0]}</span>{/if}
     </div>
   {/if}

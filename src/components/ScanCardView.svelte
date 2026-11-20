@@ -61,7 +61,7 @@
         <button onclick={edit}>{t.edit}</button>
       {:else if card.state === 'notfound' || card.state === 'error'}
         <button class="primary" onclick={edit}>{t.fillInDetails}</button>
-        <button onclick={() => scanSession.save(card.key)}>{t.saveIsbnOnly}</button>
+        <button onclick={() => scanSession.save(card.key)}>{card.kind === 'barcode' ? t.saveBarcodeOnly : t.saveIsbnOnly}</button>
         {#if card.state === 'error'}<button class="ghost" onclick={() => scanSession.lookup(card.key, true)}>{t.retryLookup}</button>{/if}
       {:else if card.state === 'duplicate'}
         {#if !existing?.wishlist}<button class="primary" onclick={() => scanSession.addCopy(card.key)}>{t.addAnotherCopy}</button>{/if}
