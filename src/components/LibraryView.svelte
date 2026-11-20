@@ -192,7 +192,7 @@
     </p>
 
     {#snippet badges(b: Book, long: boolean)}
-      {#if long && b.location}<span class="chip">{locationFlag(b.location)} {b.location}</span>{/if}
+      {#if long && b.location}<span class="chip">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{b.location}</span>{/if}
       {#if b.category}<span class="chip">{b.category}</span>{/if}
       {#if b.lent_to}<span class="chip lent">{long ? t.lentTo(b.lent_to, '') : t.lentOut}</span>{/if}
       {#if b.needs_details || !b.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
@@ -209,12 +209,12 @@
               <button class="tile selectable" class:sel={selected[b.id]} aria-pressed={!!selected[b.id]} onclick={() => toggle(b.id)}>
                 <span class="check" class:on={selected[b.id]} aria-hidden="true"></span>
                 <Cover book={b} />
-                <span class="ttitle">{locationFlag(b.location)} {displayTitle(b, t.untitled)}</span>
+                <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{displayTitle(b, t.untitled)}</span>
               </button>
             {:else}
               <a href={bookHref(b)} class="tile">
                 <Cover book={b} />
-                <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span> {/if}{displayTitle(b, t.untitled)}</span>
+                <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{displayTitle(b, t.untitled)}</span>
                 {#if b.authors.length}<span class="tauthor muted">{b.authors[0]}</span>{/if}
                 <span class="badges">{@render badges(b, false)}</span>
               </a>
@@ -420,6 +420,11 @@
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  /* Spacing set in CSS: a plain space next to {#if} blocks is dropped when compiled. */
+  .flag {
+    display: inline-block;
+    margin-right: 0.4em;
   }
   .tauthor {
     font-size: 0.78rem;
