@@ -27,8 +27,12 @@ jobs:
 
       - run: npm ci
 
+      # Both checks must pass; if either fails, nothing is built or deployed.
       - name: Unit tests
         run: npm test
+
+      - name: Type check
+        run: npm run check
 
       - name: Configure Pages
         id: pages
