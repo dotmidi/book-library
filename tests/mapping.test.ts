@@ -54,7 +54,7 @@ describe('resolveColumns', () => {
   it('maps the standard layout', () => {
     const r = resolveColumns(STANDARD_HEADER, []);
     expect(r.created).toEqual([]);
-    expect(r.columns.title).toBe(3);
+    expect(r.columns.title).toBe(STANDARD_HEADER.indexOf('title'));
     expect(r.untagged.length).toBe(FIELDS.length);
   });
 
@@ -68,10 +68,11 @@ describe('resolveColumns', () => {
 
   it('prefers metadata tags over header text (renamed columns)', () => {
     const header = [...STANDARD_HEADER];
-    header[3] = 'Name of the book'; // user renamed "title"
-    const tags = [{ field: 'title', columnIndex: 3 }];
+    const ti = STANDARD_HEADER.indexOf('title');
+    header[ti] = 'Name of the book'; // user renamed "title"
+    const tags = [{ field: 'title', columnIndex: ti }];
     const r = resolveColumns(header, tags);
-    expect(r.columns.title).toBe(3);
+    expect(r.columns.title).toBe(ti);
     expect(r.created).toEqual([]);
     expect(r.untagged.find((u) => u.field === 'title')).toBeUndefined();
   });
@@ -217,7 +218,7 @@ describe('rowToBook / rowsToBooks', () => {
   });
 
   it('works with a short row (trailing cells trimmed by the API)', () => {
-    const b = rowToBook(['id1', '', '', 'Short'], cols).book!;
+    const b = rowToBook(['id1', '', '', '', 'Short'], cols).book!; // title is the 5th column
     expect(b.title).toBe('Short');
     expect(b.tags).toEqual([]);
   });

@@ -3,6 +3,8 @@ export interface Book {
   id: string;
   isbn13: string;
   isbn10: string;
+  /** Barcode of a non-book item (CD, vinyl): EAN-13 / UPC-A digits. Empty for books. */
+  barcode: string;
   title: string;
   subtitle: string;
   authors: string[];
@@ -13,6 +15,8 @@ export interface Book {
   cover_url: string;
   location: string;
   tags: string[];
+  /** Novel, Manga, Comic, Artbook, Non-fiction, CD, Vinyl, Other, or anything typed. */
+  category: string;
   notes: string;
   copies: number;
   lent_to: string;
@@ -21,6 +25,8 @@ export interface Book {
   /** yyyy-mm-dd or '' */
   date_added: string;
   needs_details: boolean;
+  /** On the wishlist (not owned yet). */
+  wishlist: boolean;
 }
 
 export type BookField = keyof Book;
@@ -38,6 +44,9 @@ export interface BookMetadata {
   /** Readable language name, e.g. "Dutch". */
   language?: string;
   cover_url?: string;
+  /** Category the source knows, e.g. "CD" for a music release. */
+  category?: string;
+  barcode?: string;
 }
 
 export function emptyBook(): Book {
@@ -45,6 +54,7 @@ export function emptyBook(): Book {
     id: '',
     isbn13: '',
     isbn10: '',
+    barcode: '',
     title: '',
     subtitle: '',
     authors: [],
@@ -55,12 +65,14 @@ export function emptyBook(): Book {
     cover_url: '',
     location: '',
     tags: [],
+    category: '',
     notes: '',
     copies: 1,
     lent_to: '',
     lent_since: '',
     date_added: '',
     needs_details: false,
+    wishlist: false,
   };
 }
 

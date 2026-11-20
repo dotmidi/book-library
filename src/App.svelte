@@ -12,11 +12,14 @@
   import Stats from './routes/Stats.svelte';
   import More from './routes/More.svelte';
   import Import from './routes/Import.svelte';
+  import Friends from './routes/Friends.svelte';
+  import FriendLibrary from './routes/FriendLibrary.svelte';
 
   const route = $derived(router.route);
   const tabs = [
     { href: '#/', name: 'library', label: t.navLibrary, icon: 'M4 4h4v16H4zM10 4h4v16h-4zM16.5 4.6l3.8-1 3.7 15.5-3.8.9z' },
     { href: '#/add', name: 'add', label: t.navAdd, icon: 'M3 5h2v14H3zM7 5h1v14H7zM10 5h2v14h-2zM14 5h1v14h-1zM17 5h2v14h-2zM21 5h1v14h-1z' },
+    { href: '#/friends', name: 'friends', label: t.navFriends, icon: 'M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm8 0a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM1 20c0-3.3 3.6-6 8-6s8 2.7 8 6v1H1zm16.9 1H23v-1c0-2.6-2.4-4.8-5.6-5.4 1.5 1.4 2.5 3.3 2.5 5.4z' },
     { href: '#/stats', name: 'stats', label: t.navStats, icon: 'M4 20V10h4v10zM10 20V4h4v16zM16 20v-7h4v7z' },
     { href: '#/more', name: 'more', label: t.navMore, icon: 'M5 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z' },
   ];
@@ -27,7 +30,9 @@
         ? 'add'
         : route.name === 'import'
           ? 'more'
-          : route.name,
+          : route.name === 'friend' || route.name === 'friendBook'
+            ? 'friends'
+            : route.name,
   );
 </script>
 
@@ -67,6 +72,12 @@
       <More />
     {:else if route.name === 'import'}
       <Import />
+    {:else if route.name === 'friends'}
+      <Friends />
+    {:else if route.name === 'friend'}
+      {#key route.params.code}<FriendLibrary code={route.params.code} />{/key}
+    {:else if route.name === 'friendBook'}
+      {#key route.params.id}<FriendLibrary code={route.params.code} bookId={route.params.id} />{/key}
     {:else}
       <div class="page"><p>{t.bookNotFound}</p><a class="button" href="#/">{t.backToLibrary}</a></div>
     {/if}
@@ -150,7 +161,7 @@
     bottom: 0;
     z-index: 20;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     height: calc(var(--nav-h) + var(--safe-bottom));
     padding-bottom: var(--safe-bottom);
     background: var(--surface);

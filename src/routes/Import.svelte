@@ -40,6 +40,16 @@
           <ul class="small">{#each p.skipped.slice(0, 50) as s}<li>{s}</li>{/each}</ul>
         </details>
       {/if}
+      {#if p.withoutIsbn}
+        <label class="toggle">
+          <input type="checkbox" bind:checked={importer.matchByTitle} />
+          <span>{t.matchByTitle(p.withoutIsbn)}</span>
+        </label>
+      {/if}
+      <label class="toggle">
+        <input type="checkbox" bind:checked={importer.toWishlist} />
+        <span>{t.importToWishlist}</span>
+      </label>
       <div class="row">
         <button class="primary" onclick={() => importer.run()} disabled={p.books.length + p.needLookup.length === 0}>{t.importStart}</button>
         <button onclick={() => importer.reset()}>{t.cancel}</button>
@@ -47,7 +57,7 @@
     </div>
   {:else}
     {#if importer.finished}
-      <p class="card done">{t.importDone(importer.added)}</p>
+      <p class="card done">{t.importDone(importer.added)} {importer.matched ? t.importMatched(importer.matched) : ''}</p>
     {/if}
     <label class="button primary filebtn">
       {t.chooseFile}
@@ -79,6 +89,14 @@
     position: absolute;
     inset: 0;
     opacity: 0;
+    cursor: pointer;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin: 0;
     cursor: pointer;
   }
   .done {

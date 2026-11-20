@@ -1,0 +1,28 @@
+{
+  "created": "2026-11-20T22:50:00.000Z",
+  "count": 2,
+  "offset": 0,
+  "releases": [
+    {
+      "id": "aaaaaaaa-0000-0000-0000-000000000000",
+      "score": 100,
+      "title": "Abbey Road (other pressing)",
+      "barcode": "5099969945120",
+      "media": [{ "format": "12\" Vinyl", "track-count": 17 }]
+    },
+    {
+      "id": "02fb1dd7-4256-40a8-a0a8-551314a0b5d4",
+      "score": 100,
+      "title": "Abbey Road",
+      "status": "Official",
+      "text-representation": { "language": "eng", "script": "Latn" },
+      "artist-credit": [{ "name": "The Beatles", "artist": { "id": "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d", "name": "The Beatles" } }],
+      "date": "1987-10-21",
+      "country": "US",
+      "barcode": "077774644624",
+      "label-info": [{ "catalog-number": "CDP 7 46446 2", "label": { "id": "x", "name": "Parlophone" } }],
+      "track-count": 17,
+      "media": [{ "format": "CD", "disc-count": 0, "track-count": 17 }]
+    }
+  ]
+}

@@ -19,6 +19,7 @@ import { ApiError, OfflineError } from '../google/api';
 import { getDriveUser } from '../google/drive';
 import { connectSpreadsheet, LayoutChangedError, loadLibrary, rememberBooksSheet, writePlan } from '../sheets/backend';
 import { changedFields } from '../sheets/mapping';
+import { sameBarcode } from '../barcode';
 import { newId, todayIso, type Book } from '../types';
 import * as db from './db';
 import { applyOps, coalesce, type Op } from './ops';
@@ -236,6 +237,11 @@ class Library {
   findByIsbn(isbn13: string): Book | undefined {
     if (!isbn13) return undefined;
     return this.books.find((b) => b.isbn13 === isbn13);
+  }
+
+  findByBarcode(barcode: string): Book | undefined {
+    if (!barcode) return undefined;
+    return this.books.find((b) => sameBarcode(b.barcode, barcode));
   }
 
   get(id: string): Book | undefined {

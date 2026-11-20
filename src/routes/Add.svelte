@@ -66,12 +66,17 @@
 
   <Scanner onscan={(isbn) => scanSession.submit(isbn, 'camera')} />
 
-  <div class="row options">
+  <div class="options">
+    <label class="toggle">
+      <input type="checkbox" checked={scanSession.wishlistMode} onchange={(e) => scanSession.setWishlistMode(e.currentTarget.checked)} />
+      <span>☆ {t.addToWishlistMode}</span>
+    </label>
     <label class="toggle">
       <input type="checkbox" checked={scanSession.autoSave} onchange={(e) => scanSession.setAutoSave(e.currentTarget.checked)} />
       <span>{t.autoSave}</span>
     </label>
   </div>
+  {#if scanSession.wishlistMode}<p class="wishnote small">{t.wishlistModeOn}</p>{/if}
 
   <section class="cards" aria-live="polite">
     {#each scanSession.cards as card (card.key)}
@@ -106,6 +111,17 @@
     flex: 1;
     font-size: 1.15rem;
     letter-spacing: 0.03em;
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .wishnote {
+    margin: -0.4rem 0 0;
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    background: var(--warn-soft);
   }
   .toggle {
     display: flex;

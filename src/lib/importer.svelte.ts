@@ -1,11 +1,13 @@
 /** CSV import runner. Lives outside the page so it keeps going if you navigate away. */
 import { parseCsvText, type CsvParseResult } from './csv';
-import { lookupBook, metadataToBook } from './lookup/service';
+import { fillBlanks, lookupBook, lookupByTitle, metadataToBook } from './lookup/service';
 import { library } from './store/library.svelte';
 import type { Book } from './types';
 
 export interface ImportPreview extends CsvParseResult {
   duplicates: number;
+  /** Rows with a title but no ISBN (can be matched by title and author). */
+  withoutIsbn: number;
   fileName: string;
 }
 
@@ -16,6 +18,11 @@ class Importer {
   total = $state(0);
   finished = $state(false);
   added = $state(0);
+  matched = $state(0);
+  /** Look up books without ISBN by title + author and fill in cover, ISBN etc. */
+  matchByTitle = $state(true);
+  /** Import everything into the wishlist instead of the library. */
+  toWishlist = $state(false);
 
   async load(file: File) {
     this.finished = false;
@@ -34,7 +41,8 @@ class Importer {
     };
     r.books = r.books.filter(keep);
     r.needLookup = r.needLookup.filter(keep);
-    this.preview = { ...r, duplicates, fileName: file.name };
+    const withoutIsbn = r.books.filter((b) => !b.isbn13 && b.title).length;
+    this.preview = { ...r, duplicates, withoutIsbn, fileName: file.name };
   }
 
   async run() {
@@ -43,23 +51,36 @@ class Importer {
     this.running = true;
     this.done = 0;
     this.added = 0;
+    this.matched = 0;
     this.total = p.books.length + p.needLookup.length;
+    const wishlist = this.toWishlist;
     try {
-      for (const b of p.books) {
-        await library.add(b);
+      for (const original of p.books) {
+        let b = original;
+        if (this.matchByTitle && !b.isbn13 && b.title) {
+          const meta = await lookupByTitle(b.title, b.authors[0] ?? '');
+          if (meta && !(meta.isbn13 && library.findByIsbn(meta.isbn13))) {
+            b = fillBlanks(b, meta);
+            this.matched++;
+          }
+        }
+        await library.add({ ...b, wishlist: wishlist || b.wishlist });
         this.done++;
         this.added++;
       }
       for (const b of p.needLookup) {
         const out = await lookupBook(b.isbn13);
         const looked = metadataToBook(out.metadata, b.isbn13, b.isbn10);
+        if (out.metadata) this.matched++;
         await library.add({
           ...looked,
           location: b.location,
+          category: b.category || looked.category,
           tags: b.tags,
           notes: b.notes,
           copies: b.copies,
           date_added: b.date_added,
+          wishlist: wishlist || b.wishlist,
         });
         this.done++;
         this.added++;

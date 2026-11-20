@@ -157,6 +157,10 @@ export function rowToBook(row: unknown[], cols: ColumnMap): ParsedRow {
       case 'isbn':
         (book[key] as string) = isbnFromCell(v);
         break;
+      case 'code':
+        // Barcodes typed by hand may arrive as numbers; keep digits only.
+        (book[key] as string) = typeof v === 'number' ? Math.round(v).toString() : parseText(v).replace(/\D/g, '');
+        break;
       case 'list':
         (book[key] as string[]) = parseList(v, def);
         break;
@@ -184,7 +188,7 @@ export function rowToBook(row: unknown[], cols: ColumnMap): ParsedRow {
   book.language = languageName(book.language);
   if (book.copies === null || !Number.isFinite(book.copies) || book.copies < 1) book.copies = 1;
 
-  if (!book.title && !book.isbn13 && !book.isbn10) {
+  if (!book.title && !book.isbn13 && !book.isbn10 && !book.barcode) {
     return { skipped: 'it has no title and no ISBN' };
   }
 
@@ -270,6 +274,7 @@ export function fieldCell(key: FieldKey, book: Book, cols: ColumnMap): CellData 
   const v = book[key as BookField];
   switch (def.kind) {
     case 'isbn':
+    case 'code':
       return v ? { userEnteredValue: { stringValue: String(v) }, userEnteredFormat: TEXT_FORMAT } : { userEnteredFormat: TEXT_FORMAT };
     case 'list': {
       const s = (v as string[]).join(def.sep ?? ', ');

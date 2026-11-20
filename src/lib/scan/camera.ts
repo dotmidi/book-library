@@ -5,6 +5,7 @@
  */
 import wasmUrl from 'zxing-wasm/reader/zxing_reader.wasm?url';
 import { isBooklandEan, isValidIsbn10 } from '../isbn';
+import { isValidGtin } from '../barcode';
 
 interface Detector {
   detect(source: HTMLVideoElement): Promise<{ rawValue: string; format: string }[]>;
@@ -18,7 +19,7 @@ async function createDetector(): Promise<Detector> {
   if (Native) {
     try {
       const formats = await Native.getSupportedFormats();
-      if (formats.includes('ean_13')) return new Native({ formats: ['ean_13'] });
+      if (formats.includes('ean_13')) return new Native({ formats: ['ean_13', 'upc_a', 'ean_8'].filter((x) => formats.includes(x)) });
     } catch {
       /* fall through to the WebAssembly detector */
     }
@@ -30,7 +31,7 @@ async function createDetector(): Promise<Detector> {
     },
     fireImmediately: true,
   });
-  return new mod.BarcodeDetector({ formats: ['ean_13'] }) as unknown as Detector;
+  return new mod.BarcodeDetector({ formats: ['ean_13', 'upc_a', 'ean_8'] }) as unknown as Detector;
 }
 
 /** Start loading the scanner engine early (e.g. when the Add page opens). */
@@ -137,7 +138,9 @@ export class CameraScanner {
 
   private handle(values: string[]) {
     const now = Date.now();
-    const isbn = values.map((v) => v.replace(/\D/g, '')).find((v) => isBooklandEan(v) || isValidIsbn10(v));
+    // Book ISBNs first; otherwise any valid product barcode (CDs, vinyl…).
+    const codes = values.map((v) => v.replace(/\D/g, ''));
+    const isbn = codes.find((v) => isBooklandEan(v) || isValidIsbn10(v)) ?? codes.find((v) => isValidGtin(v));
     if (!isbn) return;
     if (isbn === this.lastCode && now - this.lastSeen < this.repeatMs) {
       this.lastSeen = now;

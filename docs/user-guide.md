@@ -65,14 +65,56 @@ On the Add page, tap **Add a book without an ISBN** and type the details.
 
 If you scan a book that's already in your library, the app says so. Tap **Add another copy** if you really have two.
 
+### CDs and vinyl
+
+Scan the barcode on a CD or record the same way. It's looked up in MusicBrainz, a free music database, and gets the
+category **CD** or **Vinyl**. If a barcode isn't a book, CD or record the app knows (single comic issues, for example),
+the app says so.
+
+### Wishlist: books you want but haven't bought
+
+In a shop, switch on **Add to my wishlist** on the Add page and scan. Those books go to your **Wishlist** instead of
+your library. When you buy one, open it and tap **Bought it**. Scanning it again also offers **Bought it**.
+
 ## 4. Your library
 
-- **Library** shows all your books. Search by title, author or ISBN.
-- Use the filters to show only one **location** (e.g. "Living room" or "Istanbul") or **tag**, and sort by recently added, title, author or year. Switch between **Covers** and
-  **List**.
+- **Library** has two shelves at the top: **My books** and **Wishlist**. Search by title, author or ISBN.
+- **Filters:**
+  - **location**, which shows country flags; "No location set" finds books you still need to sort
+  - **category** (Novel, Manga, Comic, Artbook, CD, Vinyl…)
+  - **tag**
+- **Sorting:** recently added, title, author or year. Switch between **Covers** and **List**.
+- **Location** can be a country (pick from the list to get its flag, e.g. 🇹🇷 Turkey) or anything else ("Living room").
+- **Changing many books at once:**
+  1. Tap **Select**, then tap books, or use **Select all shown** after filtering.
+  2. Then set the location or category, add or remove a tag, move them to or from the wishlist, or delete them.
 - Tap a book to see its details, **Edit** it, or **Delete** it.
 - **Lending:** on a book's page, tap **Lend this book** and type who has it. When it comes back, tap **It's back**.
-- **Stats** shows how many books you have, by language and location, and how many you added each month.
+- **Stats** shows how many books you own, by language, location and category, and how many you added each month.
+- **Volumes:** manga and series volumes are written as "Title, Vol. 2", so they sort together.
+
+## Friends
+
+The **Friends** tab lets you look at each other's libraries. It's optional, and off until you turn it on.
+
+**To share yours:**
+1. Type the name friends should see.
+2. Tap **Start sharing**.
+3. Send the link to your friends. When they open it, your library appears in their Friends tab.
+
+What sharing means:
+- Anyone with the link can **look** at everything in your sheet, including notes and who you lent books to. They can't
+  change anything.
+- Tap **Stop sharing** at any time; the link stops working right away.
+
+**To add a friend's library:** open the link they sent you, or paste their link or code under **Add a friend's library**.
+
+## Importing an existing list
+
+**More → Import books from a CSV file.** From Google Sheets: **File → Download → Comma-separated values (.csv)**.
+
+- Columns are matched by name (title, author, ISBN, location, category…).
+- Rows without an ISBN can be matched by **title and author** to find covers and details. Only clear matches are used.
 
 ## 5. Where your data lives
 

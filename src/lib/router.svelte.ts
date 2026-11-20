@@ -1,6 +1,6 @@
 /** Tiny hash router (GitHub Pages has no server-side routing). */
 export interface Route {
-  name: 'library' | 'add' | 'book' | 'edit' | 'new' | 'stats' | 'more' | 'import' | 'notfound';
+  name: 'library' | 'add' | 'book' | 'edit' | 'new' | 'stats' | 'more' | 'import' | 'friends' | 'friend' | 'friendBook' | 'notfound';
   params: Record<string, string>;
   query: URLSearchParams;
 }
@@ -17,6 +17,9 @@ function parse(): Route {
   if (a === 'book' && b && !c) return { name: 'book', params: { id: b }, query };
   if (a === 'book' && b && c === 'edit') return { name: 'edit', params: { id: b }, query };
   if (a === 'stats') return { name: 'stats', params: {}, query };
+  if (a === 'friends' && !b) return { name: 'friends', params: {}, query };
+  if (a === 'friends' && b && !c) return { name: 'friend', params: { code: b }, query };
+  if (a === 'friends' && b && c === 'book' && parts[3]) return { name: 'friendBook', params: { code: b, id: parts[3] }, query };
   if (a === 'more') return { name: 'more', params: {}, query };
   if (a === 'import') return { name: 'import', params: {}, query };
   return { name: 'notfound', params: {}, query };

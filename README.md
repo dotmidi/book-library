@@ -18,7 +18,9 @@ Browser (installable PWA, static files on GitHub Pages)
  ├─ auth/      Google Identity Services token model; full-page redirect on iPhone Home Screen
  ├─ store/     books in memory + IndexedDB cache + outbox of unsaved changes
  ├─ sheets/    schema, column resolution, row ⇄ book mapping, batched writes
- ├─ lookup/    region-aware chain: openBD · NDL · BnF · Open Library · Google Books · Crossref → manual form
+ ├─ lookup/    region-aware chain: openBD · NDL · BnF · Open Library · Google Books · Crossref → manual form;
+ │             MusicBrainz for CD/vinyl barcodes; title search for imports without ISBN
+ ├─ friends/   opt-in sharing (Drive "anyone with link") + reading friends' sheets with the API key
  └─ scan/      camera (BarcodeDetector / zxing-wasm), feedback, scan session
         │                    │                              │
    Google OAuth      Sheets API + Drive API         openlibrary.org · Google Books
@@ -54,7 +56,9 @@ So a second device never creates a duplicate.
 ### The sheet
 
 **Tab `Books`**, frozen header row:
-`id, isbn13, isbn10, title, subtitle, authors, publisher, year, pages, language, cover_url, cover_preview, location, tags, notes, copies, lent_to, lent_since, date_added, needs_details`
+`id, isbn13, isbn10, barcode, title, subtitle, authors, publisher, year, pages, language, cover_url, cover_preview, location, tags, category, notes, copies, lent_to, lent_since, date_added, needs_details, wishlist`
+
+**Schema version 2** (Nov 2026) added `barcode`, `category` and `wishlist`. Older sheets get these columns appended automatically, without a warning, and `_meta.schema_version` is bumped. Hidden tab `_friends` (code, name, added) holds your friend list; `_meta.display_name` is the name friends see.
 
 | Column | Format |
 |---|---|
@@ -62,6 +66,11 @@ So a second device never creates a duplicate.
 | `tags` | separated by `, ` |
 | `language` | readable English name ("Dutch") |
 | `lent_to` | a name means the book is lent out; empty means it is at home |
+| `barcode` | EAN-13/UPC-A of a non-book item (CD, vinyl); empty for books |
+| `category` | Novel, Manga, Comic, Artbook, Non-fiction, CD, Vinyl, Other, or any text |
+| `wishlist` | checkbox: on the wishlist, not owned yet (excluded from stats) |
+| `location` | free text; if it names a country (Turkey, Türkiye, Nederland…) the app shows its flag |
+| title volumes | normalised to "Title, Vol. 2" (`src/lib/volume.ts`) |
 | `lent_since`, `date_added` | real date cells (`yyyy-mm-dd`) |
 | `needs_details` | checkbox |
 | `cover_preview` | `=IFERROR(IMAGE(INDEX(K:K,ROW())),"")`. It uses `ROW()`, so the same formula works on every row, and Sheets updates `K:K` if columns move. |
@@ -110,6 +119,11 @@ Dutch, 978-605/975/9944 Turkish, 978-89/979-11 Korean, …). The app uses that t
 | Open Library | all | JSON | `jscmd=data` (+ `jscmd=details` for the language), 1 request/s, backoff on 429 |
 | Google Books | all | JSON | referrer-restricted API key |
 | Crossref | all, **last resort** | JSON | academic / museum / art books; only asked when nothing else found the book |
+| MusicBrainz + Cover Art Archive | non-book barcodes (CD, vinyl) | JSON | 1 request/s; category from the medium format |
+| Open Library / Google Books search | CSV rows without ISBN | JSON | title + author; only clear matches (≥80% title words, author overlap) |
+
+Comic single issues are not supported: they have UPC barcodes shared by every issue of a series, and no free database
+identifies them.
 
 - How results combine: the first source to find the book wins, and later sources only fill empty fields. So a Japanese
   title from openBD is never replaced by a romanised one from Google.
@@ -120,6 +134,20 @@ Dutch, 978-605/975/9944 Turkish, 978-89/979-11 Korean, …). The app uses that t
   - Library of Congress: behind a bot check.
   - DNB (German national library): refuses browser requests.
   - Wikidata: too sparse, and needs hyphenated ISBNs.
+
+### Friends (opt-in sharing)
+
+- **Share:** `permissions.create {type: anyone, role: reader, allowFileDiscovery: false}` on your own spreadsheet. This
+  is allowed with `drive.file`, because the app created the file. **Stop sharing** deletes that permission.
+- **Friend code:** the spreadsheet id. The share link is `#/friends?add=<id>`.
+- **Reading a friend's library:** Sheets API GETs with the app's API key, no OAuth: sheet properties, the header row with
+  column tags, and `values:batchGet`. The key must allow the **Google Sheets API** as well as the Books API (Credentials
+  → key → API restrictions).
+- **No central directory, no server:** friends find each other by exchanging links.
+
+## Credits
+
+Country flags on Windows use the Twemoji flag font (CC-BY 4.0, Twitter/X) via `country-flag-emoji-polyfill` (MIT), bundled with the app.
 
 ## Local development
 

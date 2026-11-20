@@ -106,7 +106,7 @@ Then open the new key (**Edit API key**) and restrict it:
 1. **Application restrictions → Websites**. Add:
    - `https://dotmidi.github.io/*`
    - `http://localhost:5173/*`
-2. **API restrictions → Restrict key**. Select only **Books API**.
+2. **API restrictions → Restrict key**. Select **Books API** and **Google Sheets API** (the Sheets API is used to read friends' shared libraries).
 3. **Save**. Copy the key (`AIza…`).
 
 The key is visible to anyone who opens the app; that's normal for browser API keys. The restrictions mean it only works

@@ -1,9 +1,10 @@
 import type { BookField } from '../types';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const SPREADSHEET_TITLE = 'Book Library';
 export const BOOKS_TAB = 'Books';
 export const META_TAB = '_meta';
+export const FRIENDS_TAB = '_friends';
 
 /** Developer-metadata keys. Tags on columns survive renames and moves. */
 export const MD_FIELD = 'bl.field';
@@ -14,7 +15,7 @@ export const APP_PROPERTY = 'bookLibrary';
 
 export type FieldKey = BookField | 'cover_preview';
 
-export type FieldKind = 'text' | 'isbn' | 'list' | 'int' | 'date' | 'bool' | 'formula';
+export type FieldKind = 'text' | 'isbn' | 'code' | 'list' | 'int' | 'date' | 'bool' | 'formula';
 
 export interface FieldDef {
   key: FieldKey;
@@ -25,13 +26,16 @@ export interface FieldDef {
   sep?: string;
   /** Column width in pixels for a new sheet. */
   width?: number;
+  /** Schema version that introduced the field (missing newer columns are added silently). */
+  since?: number;
 }
 
 /** Column order for a brand-new sheet. Existing sheets may be in any order. */
 export const FIELDS: FieldDef[] = [
   { key: 'id', kind: 'text', aliases: ['bookid', 'book id'], width: 90 },
-  { key: 'isbn13', kind: 'isbn', aliases: ['isbn', 'isbn 13', 'ean', 'barcode'], width: 120 },
+  { key: 'isbn13', kind: 'isbn', aliases: ['isbn', 'isbn 13', 'ean'], width: 120 },
   { key: 'isbn10', kind: 'isbn', aliases: ['isbn 10'], width: 100 },
+  { key: 'barcode', kind: 'code', aliases: ['upc', 'ean 13', 'streepjescode', 'barkod'], width: 120, since: 2 },
   { key: 'title', kind: 'text', aliases: ['titel', 'baslik', 'kitap', 'book', 'name', 'naam'], width: 240 },
   { key: 'subtitle', kind: 'text', aliases: ['ondertitel', 'alt baslik', 'altbaslik'], width: 160 },
   { key: 'authors', kind: 'list', sep: '; ', aliases: ['author', 'auteur', 'auteurs', 'schrijver', 'yazar', 'yazarlar', 'writer', 'by'], width: 180 },
@@ -42,13 +46,15 @@ export const FIELDS: FieldDef[] = [
   { key: 'cover_url', kind: 'text', aliases: ['cover', 'cover url', 'image', 'image url', 'kapak'], width: 120 },
   { key: 'cover_preview', kind: 'formula', aliases: ['preview', 'cover image'], width: 70 },
   { key: 'location', kind: 'text', aliases: ['locatie', 'plaats', 'kast', 'shelf', 'konum', 'yer', 'raf'], width: 120 },
-  { key: 'tags', kind: 'list', sep: ', ', aliases: ['tag', 'labels', 'etiketten', 'etiket', 'genre', 'categories'], width: 140 },
+  { key: 'tags', kind: 'list', sep: ', ', aliases: ['tag', 'labels', 'etiketten', 'etiket', 'genre'], width: 140 },
+  { key: 'category', kind: 'text', aliases: ['categories', 'categorie', 'kategori', 'type', 'format', 'soort', 'tur'], width: 100, since: 2 },
   { key: 'notes', kind: 'text', aliases: ['note', 'notities', 'opmerkingen', 'notlar', 'not', 'comments'], width: 200 },
   { key: 'copies', kind: 'int', aliases: ['copy', 'aantal', 'exemplaren', 'adet', 'quantity', 'qty'], width: 60 },
   { key: 'lent_to', kind: 'text', aliases: ['lent', 'uitgeleend aan', 'borrower', 'odunc'], width: 110 },
   { key: 'lent_since', kind: 'date', aliases: ['uitgeleend sinds', 'lent on', 'lent date'], width: 100 },
   { key: 'date_added', kind: 'date', aliases: ['added', 'toegevoegd', 'eklenme tarihi', 'date'], width: 100 },
   { key: 'needs_details', kind: 'bool', aliases: ['needs info', 'incomplete'], width: 90 },
+  { key: 'wishlist', kind: 'bool', aliases: ['wish list', 'wish', 'verlanglijst', 'istek listesi'], width: 80, since: 2 },
 ];
 
 export const FIELD_BY_KEY = new Map(FIELDS.map((f) => [f.key, f]));

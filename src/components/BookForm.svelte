@@ -5,6 +5,8 @@
   import { parseIsbn } from '../lib/isbn';
   import { COMMON_LANGUAGES, languageName } from '../lib/languages';
   import { uniqueSorted } from '../lib/search';
+  import LocationInput from './LocationInput.svelte';
+  import CategoryPicker from './CategoryPicker.svelte';
   import { todayIso, type Book } from '../lib/types';
 
   let {
@@ -35,7 +37,6 @@
   let error = $state('');
   let busy = $state(false);
 
-  const locations = $derived(uniqueSorted(library.books.map((b) => b.location)));
   const allTags = $derived(uniqueSorted(library.books.flatMap((b) => b.tags)));
   const authors = $derived(uniqueSorted(library.books.flatMap((b) => b.authors)));
   const publishers = $derived(uniqueSorted(library.books.map((b) => b.publisher)));
@@ -61,7 +62,7 @@
       isbn13 = p.value.isbn13;
       isbn10 = p.value.isbn10;
     }
-    if (!f.title.trim() && !isbn13) {
+    if (!f.title.trim() && !isbn13 && !f.barcode.trim()) {
       error = t.titleRequired;
       return;
     }
@@ -78,6 +79,8 @@
       language: languageName(f.language),
       cover_url: f.cover_url.trim(),
       location: f.location.trim(),
+      category: f.category.trim(),
+      barcode: f.barcode.replace(/D/g, ''),
       tags: f.tagsText.split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean),
       notes: f.notes.trim(),
       copies: Math.max(1, toInt(String(f.copies)) ?? 1),
@@ -106,11 +109,14 @@
     <datalist id="authors-list-{uid}">{#each authors as a}<option value={a}></option>{/each}</datalist>
     <small class="muted">{t.authorsHelp}</small>
   </div>
+  <div class="field">
+    <span class="label" id="category-{uid}-label">{t.fieldLabels.category}</span>
+    <CategoryPicker id="category-{uid}" bind:value={f.category} />
+  </div>
   <div class="grid2">
     <div class="field">
       <label for="location-{uid}">{t.fieldLabels.location}</label>
-      <input id="location-{uid}" bind:value={f.location} list="loc-list-{uid}" autocomplete="off" />
-      <datalist id="loc-list-{uid}">{#each locations as l}<option value={l}></option>{/each}</datalist>
+      <LocationInput id="location-{uid}" bind:value={f.location} />
     </div>
     <div class="field">
       <label for="language-{uid}">{t.fieldLabels.language}</label>
@@ -139,8 +145,13 @@
         <datalist id="pub-list-{uid}">{#each publishers as p}<option value={p}></option>{/each}</datalist>
       </div>
       <div class="field">
-        <label for="isbn-{uid}">{t.fieldLabels.isbn13}</label>
-        <input id="isbn-{uid}" bind:value={f.isbnText} inputmode="text" autocomplete="off" />
+        {#if f.barcode && !f.isbnText}
+          <label for="barcode-{uid}">{t.fieldLabels.barcode}</label>
+          <input id="barcode-{uid}" bind:value={f.barcode} inputmode="numeric" autocomplete="off" />
+        {:else}
+          <label for="isbn-{uid}">{t.fieldLabels.isbn13}</label>
+          <input id="isbn-{uid}" bind:value={f.isbnText} inputmode="text" autocomplete="off" />
+        {/if}
       </div>
     </div>
     <div class="grid3">
@@ -184,6 +195,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+  }
+  .label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.35rem;
   }
   .field small {
     display: block;

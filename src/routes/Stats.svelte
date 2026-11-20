@@ -1,6 +1,7 @@
 <script lang="ts">
   import { library } from '../lib/store/library.svelte';
   import { t } from '../lib/strings';
+  import { locationFlag } from '../lib/countries';
 
   type Bar = { label: string; value: number };
 
@@ -16,18 +17,20 @@
     return [...m.values()].sort((a, b) => b.value - a.value);
   }
 
-  const books = $derived(library.books);
+  // Wishlist items aren't owned yet, so they don't count.
+  const books = $derived(library.books.filter((b) => !b.wishlist));
   const total = $derived(books.length);
   const copies = $derived(books.reduce((n, b) => n + (b.copies || 1), 0));
   const lent = $derived(books.filter((b) => b.lent_to).length);
   const byLanguage = $derived(countBy(books.map((b) => b.language)));
-  const byLocation = $derived(countBy(books.map((b) => b.location)));
+  const byLocation = $derived(countBy(books.map((b) => b.location)).map((x) => ({ ...x, label: `${locationFlag(x.label)} ${x.label}`.trim() })));
+  const byCategory = $derived(countBy(books.map((b) => b.category)));
 
   const perMonth = $derived.by(() => {
     const now = new Date();
     const months: Bar[] = [];
     const counts = new Map<string, number>();
-    for (const b of library.books) {
+    for (const b of books) {
       const m = /^(\d{4})-(\d{2})/.exec(b.date_added);
       if (m) counts.set(`${m[1]}-${m[2]}`, (counts.get(`${m[1]}-${m[2]}`) ?? 0) + 1);
     }
@@ -85,6 +88,9 @@
   <div class="two">
     {@render bars(t.byLanguage, byLanguage)}
     {@render bars(t.byLocation, byLocation)}
+  </div>
+  <div class="two">
+    {@render bars(t.byCategory, byCategory)}
   </div>
 </div>
 

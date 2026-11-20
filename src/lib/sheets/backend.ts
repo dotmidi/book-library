@@ -14,6 +14,7 @@ import {
   FIELDS,
   FIELD_BY_KEY,
   META_TAB,
+  FRIENDS_TAB,
   MD_FIELD,
   MD_TAB,
   SCHEMA_VERSION,
@@ -97,7 +98,7 @@ function columnTagRequest(sheetId: number, index: number, key: FieldKey): Reques
   };
 }
 
-function sheetTagRequest(sheetId: number, value: 'books' | 'meta'): Request {
+export function sheetTagRequest(sheetId: number, value: 'books' | 'meta' | 'friends'): Request {
   return {
     createDeveloperMetadata: {
       developerMetadata: { metadataKey: MD_TAB, metadataValue: value, visibility: 'DOCUMENT', location: { sheetId } },
@@ -212,14 +213,14 @@ function appUrl(): string {
 
 // ---------- layout ----------
 
-function findTab(sheets: SheetInfo[], tag: 'books' | 'meta', hintSheetId?: number): SheetInfo | undefined {
+export function findTab(sheets: SheetInfo[], tag: 'books' | 'meta' | 'friends', hintSheetId?: number): SheetInfo | undefined {
   const byTag = sheets.find((s) => s.developerMetadata?.some((m) => m.metadataKey === MD_TAB && m.metadataValue === tag));
   if (byTag) return byTag;
   if (tag === 'books' && hintSheetId !== undefined) {
     const byId = sheets.find((s) => s.properties.sheetId === hintSheetId);
     if (byId) return byId;
   }
-  const title = tag === 'books' ? BOOKS_TAB : META_TAB;
+  const title = tag === 'books' ? BOOKS_TAB : tag === 'meta' ? META_TAB : FRIENDS_TAB;
   return sheets.find((s) => s.properties.title.trim().toLowerCase() === title.toLowerCase());
 }
 
@@ -232,7 +233,7 @@ interface LayoutPlan {
 }
 
 /** Read header text + column tags from a getByDataFilter result. */
-function headerAndTags(info: SheetInfo): { header: string[]; tags: ColumnTag[] } {
+export function headerAndTags(info: SheetInfo): { header: string[]; tags: ColumnTag[] } {
   const data = info.data?.[0];
   const start = data?.startColumn ?? 0;
   const header: string[] = [];
@@ -342,15 +343,27 @@ export async function loadLibrary(spreadsheetId: string, hintSheetId?: number, d
     let metaId = META_SHEET_ID;
     while (used.has(metaId)) metaId++;
     requests.push(...metaRequests(appUrl(), sheetId, metaId));
-  } else {
-    const version = readSchemaVersion(values[1] ?? []);
-    if (version > SCHEMA_VERSION) {
-      warnings.push('Your sheet was updated by a newer version of the app. Please reload the page to get the latest version.');
-    }
-    // Future: if (version < SCHEMA_VERSION) run migrations here.
   }
-  if (layout.createdFields.length) {
-    warnings.push(`These columns were missing and have been added back at the end of your sheet: ${layout.createdFields.join(', ')}.`);
+  const metaRows = values[1] ?? [];
+  const version = meta ? readSchemaVersion(metaRows) : SCHEMA_VERSION;
+  if (version > SCHEMA_VERSION) {
+    warnings.push('Your sheet was updated by a newer version of the app. Please reload the page to get the latest version.');
+  }
+  if (meta && version < SCHEMA_VERSION) {
+    // Migration: columns introduced since `version` were just added by planLayout; record the new version.
+    const row = metaRows.findIndex((r) => String(r?.[0] ?? '').trim() === 'schema_version');
+    requests.push({
+      updateCells: {
+        start: { sheetId: meta.properties.sheetId, rowIndex: row >= 0 ? row : Math.max(metaRows.length, 2), columnIndex: 0 },
+        rows: [{ values: [{ userEnteredValue: { stringValue: 'schema_version' } }, { userEnteredValue: { numberValue: SCHEMA_VERSION } }] }],
+        fields: 'userEnteredValue',
+      },
+    });
+  }
+  // Columns that are new in this version are added quietly; only warn about ones the user removed.
+  const reallyMissing = layout.createdFields.filter((f) => (FIELD_BY_KEY.get(f)?.since ?? 1) <= version);
+  if (reallyMissing.length) {
+    warnings.push(`These columns were missing and have been added back at the end of your sheet: ${reallyMissing.join(', ')}.`);
   }
   if (requests.length) await batchUpdate(spreadsheetId, requests);
   return { booksSheetId: sheetId, books: parsed.books, warnings, repaired: requests.length > 0 };

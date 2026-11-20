@@ -2,6 +2,7 @@ import type { BookMetadata } from '../types';
 import { languageName } from '../languages';
 import { catalogueName, extractPages, extractYear, type MetadataProvider } from './provider';
 import { Throttle } from './throttle';
+import { volumeTitle } from '../volume';
 import { firstBlock, tagTexts } from './xml';
 
 /**
@@ -18,7 +19,7 @@ export function mapNdl(isbn13: string, xml: string): BookMetadata | null {
   const lang = tagTexts(item, 'dc:language')[0];
   return {
     isbn13,
-    title: volume ? `${title} ${volume}` : title,
+    title: volumeTitle(title, volume),
     subtitle: '',
     authors: tagTexts(item, 'dc:creator').map((a) => catalogueName(a, true)).filter(Boolean),
     publisher: tagTexts(item, 'dc:publisher')[0] ?? '',

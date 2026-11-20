@@ -7,10 +7,18 @@
   import { toast } from '../lib/toast.svelte';
   import { displayTitle } from '../lib/search';
   import { formatIsbn13 } from '../lib/isbn';
-  import { todayIso } from '../lib/types';
+  import { todayIso, type Book } from '../lib/types';
+  import { locationFlag } from '../lib/countries';
 
-  let { id }: { id: string } = $props();
-  const book = $derived(library.get(id));
+  // Own books are read from the library by id; a friend's book is passed in and shown read-only.
+  let {
+    id = '',
+    friendBook,
+    backHref = '#/',
+    backLabel = t.navLibrary,
+  }: { id?: string; friendBook?: Book; backHref?: string; backLabel?: string } = $props();
+  const readonly = $derived(Boolean(friendBook));
+  const book = $derived(friendBook ?? library.get(id));
   let lending = $state(false);
   let lendName = $state('');
   let looking = $state(false);
@@ -57,11 +65,13 @@
           ['year', book.year],
           ['pages', book.pages],
           ['language', book.language],
-          ['location', book.location],
+          ['location', book.location ? `${locationFlag(book.location)} ${book.location}`.trim() : ''],
+          ['category', book.category],
           ['tags', book.tags.join(', ')],
           ['copies', book.copies > 1 ? book.copies : ''],
           ['isbn13', book.isbn13 ? formatIsbn13(book.isbn13) : ''],
           ['isbn10', book.isbn10],
+          ['barcode', book.barcode],
           ['date_added', book.date_added],
         ] as [string, unknown][]).filter(([, v]) => v !== '' && v !== null && v !== undefined)
       : [],
@@ -71,9 +81,9 @@
 <div class="page">
   {#if !book}
     <p>{t.bookNotFound}</p>
-    <a class="button" href="#/">{t.backToLibrary}</a>
+    <a class="button" href={backHref}>{backLabel}</a>
   {:else}
-    <a class="backlink" href="#/">‹ {t.navLibrary}</a>
+    <a class="backlink" href={backHref}>‹ {backLabel}</a>
     <div class="hero">
       <Cover {book} size="lg" />
       <div class="htext">
@@ -81,18 +91,25 @@
         {#if book.subtitle}<p class="subtitle">{book.subtitle}</p>{/if}
         {#if book.authors.length}<p class="muted">{t.by} {book.authors.join(', ')}</p>{/if}
         <div class="row badges">
+          {#if book.wishlist}<span class="chip warn">☆ {t.wishlist}</span>{/if}
+          {#if book.category}<span class="chip">{book.category}</span>{/if}
           {#if book.lent_to}<span class="chip lent">{t.lentOut}</span>{/if}
           {#if book.needs_details || !book.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
         </div>
-        <div class="row actions">
-          <a class="button primary" href="#/book/{book.id}/edit">{t.edit}</a>
+        {#if !readonly}<div class="row actions">
+          {#if book.wishlist}<button class="primary" onclick={() => library.update(book.id, { wishlist: false })}>✓ {t.boughtIt}</button>{/if}
+          <a class="button" class:primary={!book.wishlist} href="#/book/{book.id}/edit">{t.edit}</a>
           {#if book.isbn13 && (book.needs_details || !book.title || !book.cover_url || !book.authors.length)}
             <button onclick={retry} disabled={looking}>{looking ? t.lookingUp : t.retryLookup}</button>
           {/if}
-        </div>
+        </div>{/if}
       </div>
     </div>
 
+    {#if readonly && book.lent_to}
+      <p class="chip lent">{t.lentOut}</p>
+    {/if}
+    {#if !readonly && !book.wishlist}
     <section class="card lendcard">
       <h2>{t.lending}</h2>
       {#if book.lent_to}
@@ -109,6 +126,7 @@
         <button onclick={() => (lending = true)}>{t.lendBook}</button>
       {/if}
     </section>
+    {/if}
 
     {#if rows.length || book.notes}
       <section class="card">
@@ -126,6 +144,7 @@
       </section>
     {/if}
 
+    {#if !readonly}
     <div class="row copies">
       <span class="muted">{t.fieldLabels.copies}: {book.copies}</span>
       <button class="small" onclick={() => library.addCopy(book.id)}>+1</button>
@@ -137,6 +156,7 @@
     <div class="danger-zone">
       <button class="danger" onclick={remove}>{t.deleteBook}</button>
     </div>
+    {/if}
   {/if}
 </div>
 

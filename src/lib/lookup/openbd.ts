@@ -2,6 +2,7 @@ import type { BookMetadata } from '../types';
 import { languageName } from '../languages';
 import { catalogueName, extractYear, type MetadataProvider } from './provider';
 import { Throttle } from './throttle';
+import { volumeTitle } from '../volume';
 
 /** openBD (Japan): free, no key, covers books sold in Japan. https://openbd.jp/ */
 
@@ -35,7 +36,7 @@ export function mapOpenBD(isbn13: string, rec: OpenBDRecord | null | undefined):
   const lang = d?.Language?.find((l) => l.LanguageRole === '01')?.LanguageCode ?? d?.Language?.[0]?.LanguageCode;
   return {
     isbn13,
-    title: volume ? `${title} ${volume}` : title,
+    title: volumeTitle(title, volume),
     subtitle: d?.TitleDetail?.TitleElement?.Subtitle?.content?.trim() ?? '',
     authors,
     publisher: s?.publisher?.trim() ?? '',

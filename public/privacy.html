@@ -49,7 +49,7 @@
     <main>
       <p><a href="./">‹ Back to Book Library</a></p>
       <h1>Privacy policy</h1>
-      <p class="muted">Last updated: 19 November 2026 (more book catalogues added)</p>
+      <p class="muted">Last updated: 21 November 2026 (optional sharing with friends, CD and vinyl lookups)</p>
 
       <p>
         Book Library is a small personal app for keeping a list of your books. It is designed so that your data stays
@@ -86,9 +86,22 @@
         <a href="https://openbd.jp/">openBD</a> and the
         <a href="https://ndlsearch.ndl.go.jp/">National Diet Library</a> for Japanese books;
         the <a href="https://www.bnf.fr/">Bibliothèque nationale de France</a> for French books; and
-        <a href="https://www.crossref.org/">Crossref</a> when no other catalogue knows the book.
+        <a href="https://www.crossref.org/">Crossref</a> when no other catalogue knows the book. For CDs and records, the barcode is sent to
+        <a href="https://musicbrainz.org/">MusicBrainz</a>, and covers come from the <a href="https://coverartarchive.org/">Cover Art Archive</a>.
         Only the ISBN is sent, never your name, email or library. Cover images are loaded from these services.
       </p>
+
+      <h2>Sharing with friends (optional, off by default)</h2>
+      <ul>
+        <li>In the <em>Friends</em> tab you can turn on <strong>Share my library</strong>. This sets your spreadsheet to
+          “anyone with the link can view” in Google Drive and gives you a link to send to friends.
+          <strong>Anyone who has the link can see everything in your sheet</strong>, including notes and the names of people you lent books to.
+          They cannot change anything.</li>
+        <li>The name you type for friends is stored in your sheet’s <code>_meta</code> tab so friends can see it.</li>
+        <li>Friends you add are listed in a hidden <code>_friends</code> tab of your own sheet.</li>
+        <li>Turning sharing off removes the link permission; the link stops working immediately.</li>
+        <li>Friends’ libraries are read with the app’s Google API key, not with your Google account.</li>
+      </ul>
 
       <h2>No tracking</h2>
       <p>The app has no analytics, no advertising, no cookies of its own and no tracking of any kind.</p>
