@@ -207,7 +207,7 @@
           <li>
             {#if selecting}
               <button class="tile selectable" class:sel={selected[b.id]} aria-pressed={!!selected[b.id]} onclick={() => toggle(b.id)}>
-                <span class="check" aria-hidden="true">{selected[b.id] ? '✓' : ''}</span>
+                <span class="check" class:on={selected[b.id]} aria-hidden="true"></span>
                 <Cover book={b} />
                 <span class="ttitle">{locationFlag(b.location)} {displayTitle(b, t.untitled)}</span>
               </button>
@@ -228,7 +228,7 @@
           <li>
             {#if selecting}
               <button class="lrow selectable" class:sel={selected[b.id]} aria-pressed={!!selected[b.id]} onclick={() => toggle(b.id)}>
-                <span class="check inline" aria-hidden="true">{selected[b.id] ? '✓' : ''}</span>
+                <span class="check inline" class:on={selected[b.id]} aria-hidden="true"></span>
                 <Cover book={b} size="sm" />
                 <span class="linfo"><strong>{displayTitle(b, t.untitled)}</strong><span class="badges">{@render badges(b, true)}</span></span>
               </button>
@@ -402,6 +402,10 @@
     border: 2px solid var(--primary);
     color: var(--primary);
     font-weight: 800;
+  }
+  .check.on {
+    background: var(--primary);
+    box-shadow: inset 0 0 0 4px rgb(255 255 255 / 0.9);
   }
   .check.inline {
     position: static;

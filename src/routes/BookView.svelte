@@ -91,13 +91,13 @@
         {#if book.subtitle}<p class="subtitle">{book.subtitle}</p>{/if}
         {#if book.authors.length}<p class="muted">{t.by} {book.authors.join(', ')}</p>{/if}
         <div class="row badges">
-          {#if book.wishlist}<span class="chip warn">☆ {t.wishlist}</span>{/if}
+          {#if book.wishlist}<span class="chip warn">{t.wishlist}</span>{/if}
           {#if book.category}<span class="chip">{book.category}</span>{/if}
           {#if book.lent_to}<span class="chip lent">{t.lentOut}</span>{/if}
           {#if book.needs_details || !book.title}<span class="chip warn">{t.needsDetailsBadge}</span>{/if}
         </div>
         {#if !readonly}<div class="row actions">
-          {#if book.wishlist}<button class="primary" onclick={() => library.update(book.id, { wishlist: false })}>✓ {t.boughtIt}</button>{/if}
+          {#if book.wishlist}<button class="primary" onclick={() => library.update(book.id, { wishlist: false })}>{t.boughtIt}</button>{/if}
           <a class="button" class:primary={!book.wishlist} href="#/book/{book.id}/edit">{t.edit}</a>
           {#if book.isbn13 && (book.needs_details || !book.title || !book.cover_url || !book.authors.length)}
             <button onclick={retry} disabled={looking}>{looking ? t.lookingUp : t.retryLookup}</button>

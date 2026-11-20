@@ -69,7 +69,7 @@
   <div class="options">
     <label class="toggle">
       <input type="checkbox" checked={scanSession.wishlistMode} onchange={(e) => scanSession.setWishlistMode(e.currentTarget.checked)} />
-      <span>☆ {t.addToWishlistMode}</span>
+      <span>{t.addToWishlistMode}</span>
     </label>
     <label class="toggle">
       <input type="checkbox" checked={scanSession.autoSave} onchange={(e) => scanSession.setAutoSave(e.currentTarget.checked)} />
@@ -87,7 +87,7 @@
   <div class="row footer">
     <a class="button small" href="#/new">{t.addWithoutIsbn}</a>
     {#if doneCount > 0}
-      <button class="small ghost" onclick={() => scanSession.clearDone()}>{t.dismiss} ✓ ({doneCount})</button>
+      <button class="small ghost" onclick={() => scanSession.clearDone()}>{t.clearSaved(doneCount)}</button>
     {/if}
   </div>
 </div>

@@ -60,7 +60,8 @@ export async function lookupBook(isbn13: string, opts: { force?: boolean; signal
 
 /** CDs, vinyl and other music by their product barcode (MusicBrainz). */
 export async function lookupBarcode(barcode: string, opts: { force?: boolean; signal?: AbortSignal } = {}): Promise<LookupOutcome> {
-  return cached(`ean:${barcode}`, opts.force, async () => {
+  // "music2:": results cached before album-level covers existed are ignored.
+  return cached(`music2:${barcode}`, opts.force, async () => {
     try {
       const metadata = await lookupMusic(barcode, opts.signal);
       return { metadata, sources: metadata ? ['MusicBrainz'] : [], errors: [] };

@@ -81,7 +81,7 @@
     <div class="row controls">
       <button class="small" onclick={stop}>{t.stopCamera}</button>
       {#if torchSupported}
-        <button class="small" class:on={torchOn} onclick={toggleTorch} aria-pressed={torchOn}>💡 {t.torch}</button>
+        <button class="small" class:on={torchOn} onclick={toggleTorch} aria-pressed={torchOn}>{t.torch}</button>
       {/if}
       {#if cameras.length > 1}
         <label class="visually-hidden" for="camera-select">{t.cameraLabel}</label>

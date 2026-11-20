@@ -21,7 +21,7 @@
       {c}
     </button>
   {/each}
-  <button type="button" class="chipbtn" class:on={custom} onclick={() => (custom = !custom)}>+ {t.otherCategory}</button>
+  <button type="button" class="chipbtn own" aria-expanded={custom} onclick={() => (custom = !custom)}>{t.otherCategory}</button>
 </div>
 {#if custom}
   <input {id} bind:value placeholder={t.customCategory} autocomplete="off" class="custom" />
@@ -43,6 +43,10 @@
     background: var(--primary);
     border-color: var(--primary);
     color: var(--primary-ink);
+  }
+  .chipbtn.own {
+    border-style: dashed;
+    background: transparent;
   }
   .custom {
     margin-top: 0.5rem;

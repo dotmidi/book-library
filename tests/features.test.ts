@@ -52,7 +52,7 @@ describe('MusicBrainz', () => {
       year: 1987,
       language: 'English',
       category: 'CD',
-      cover_url: 'https://coverartarchive.org/release/02fb1dd7-4256-40a8-a0a8-551314a0b5d4/front-250',
+      cover_url: 'https://coverartarchive.org/release-group/9162580e-5df4-32de-80cc-f45a8d8a9b1d/front-250',
     });
   });
   it('matches the 13-digit spelling too, and returns null when nothing matches', () => {
@@ -198,5 +198,18 @@ describe('schema v2 columns', () => {
     const r = resolveColumns(old, []);
     expect(r.created.map((c) => c.field)).toEqual(expect.arrayContaining(['barcode', 'category', 'wishlist']));
     expect(Math.min(...r.created.map((c) => c.index))).toBe(4);
+  });
+});
+
+describe('fixes from live testing', () => {
+  it('ranks countries starting with the typed text first', () => {
+    const s = suggestLocations('nether', []).map((x) => x.value);
+    expect(s[0]).toBe('Netherlands');
+    expect(s).toContain('Caribbean Netherlands');
+    expect(s.indexOf('Netherlands')).toBeLessThan(s.indexOf('Caribbean Netherlands'));
+    expect(suggestLocations('holl', [])[0].value).toBe('Netherlands');
+  });
+  it('lists every country when nothing is typed', () => {
+    expect(suggestLocations('', []).length).toBeGreaterThan(240);
   });
 });

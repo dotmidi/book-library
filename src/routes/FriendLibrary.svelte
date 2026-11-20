@@ -48,7 +48,7 @@
   </div>
   <LibraryView books={lib.books} readonly heading={t.friendLibraryName(name)} storagePrefix="fr-{code.slice(0, 8)}" bookHref={(b) => `#/friends/${code}/book/${b.id}`} />
   <div class="refresh">
-    <button class="small ghost" onclick={() => load(true)} disabled={loading}>{loading ? '…' : '↻'} {t.refresh}</button>
+    <button class="small ghost" onclick={() => load(true)} disabled={loading}>{loading ? '…' : t.refresh}</button>
   </div>
 {/if}
 

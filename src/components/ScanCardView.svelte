@@ -28,7 +28,7 @@
     <BookForm book={card.draft} compact onsave={saveEdited} oncancel={() => (card.state = prevState)} />
   {:else}
     <div class="top">
-      <Cover book={shown} size="sm" />
+      {#if card.state !== 'notbook'}<Cover book={shown} size="sm" />{/if}
       <div class="info">
         {#if card.state === 'looking'}
           <strong>{t.lookingUp}</strong>
@@ -44,9 +44,9 @@
           {#if card.state === 'error'}<span class="small error-text">{t.lookupFailed}</span>{/if}
           {#if card.state === 'duplicate'}<span class="chip lent">{existing?.wishlist ? t.alreadyOnWishlist : t.alreadyOwned(existing?.copies ?? 1)}</span>{/if}
           {#if card.state === 'onWishlist'}<span class="chip warn">{t.onYourWishlist}</span>{/if}
-          {#if card.state === 'saved'}<span class="ok">✓ {scanSession.wishlistMode || card.draft.wishlist ? t.savedToWishlist : t.saved}</span>{/if}
-          {#if card.state === 'copyAdded'}<span class="ok">✓ {t.copyAdded} ({existing?.copies})</span>{/if}
-          {#if card.state === 'bought'}<span class="ok">✓ {t.movedToLibrary}</span>{/if}
+          {#if card.state === 'saved'}<span class="ok">{scanSession.wishlistMode || card.draft.wishlist ? t.savedToWishlist : t.saved}</span>{/if}
+          {#if card.state === 'copyAdded'}<span class="ok">{t.copyAdded} ({existing?.copies})</span>{/if}
+          {#if card.state === 'bought'}<span class="ok">{t.movedToLibrary}</span>{/if}
           {#if card.state === 'found' && card.sources.length}<span class="muted small">{t.foundVia(card.sources.join(' + '))}</span>{/if}
         {/if}
       </div>

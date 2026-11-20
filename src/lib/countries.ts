@@ -94,10 +94,10 @@ export function suggestLocations(query: string, used: string[], limit = 400): { 
     out.push({ label: value, value, flag: locationFlag(value) });
   };
   for (const u of used) if (!q || fold(u).includes(q)) push(u);
-  for (const c of countries()) {
-    if (out.length >= limit) break;
-    if (!q || fold(c.name).startsWith(q) || fold(c.name).includes(` ${q}`)) push(c.name);
-  }
+  // Best matches first: names starting with the text ("nether" → Netherlands), then other
+  // spellings ("holland", "turkije"), then names with a later word matching (Caribbean Netherlands).
+  for (const c of countries()) if (!q || fold(c.name).startsWith(q)) push(c.name);
   if (q) for (const [alias, code] of Object.entries(ALIASES)) if (fold(alias).startsWith(q)) push(countries().find((c) => c.code === code)?.name ?? '');
+  if (q) for (const c of countries()) if (fold(c.name).includes(` ${q}`)) push(c.name);
   return out.slice(0, limit);
 }

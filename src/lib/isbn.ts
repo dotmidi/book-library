@@ -89,10 +89,12 @@ export function isbnFromCell(value: unknown): string {
   return cleanIsbn(String(value));
 }
 
-/** Pretty-print an ISBN-13 as 978-0-14-032872-1 style is region-specific; keep it simple. */
+/**
+ * ISBN for display. Correct hyphenation depends on per-country range tables,
+ * so show the plain 13 digits rather than wrongly placed dashes.
+ */
 export function formatIsbn13(isbn13: string): string {
-  if (isbn13.length !== 13) return isbn13;
-  return `${isbn13.slice(0, 3)}-${isbn13.slice(3, 12)}-${isbn13.slice(12)}`;
+  return isbn13;
 }
 
 /** True for barcodes that are book ISBNs (EAN-13 in the Bookland 978/979 range). */

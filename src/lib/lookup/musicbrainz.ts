@@ -21,6 +21,7 @@ interface MBRelease {
   'label-info'?: { label?: { name?: string } }[];
   media?: { format?: string }[];
   'text-representation'?: { language?: string };
+  'release-group'?: { id?: string };
 }
 
 /** CD, Vinyl, Cassette… from the release's medium format. */
@@ -47,7 +48,10 @@ export function mapMusicBrainz(barcode: string, releases: MBRelease[] | undefine
     year: extractYear(r.date),
     pages: null,
     language: lang && lang !== 'zxx' && lang !== 'mul' ? languageName(lang) : '',
-    cover_url: `https://coverartarchive.org/release/${r.id}/front-250`,
+    // The album (release group) cover exists far more often than one for this exact pressing.
+    cover_url: r['release-group']?.id
+      ? `https://coverartarchive.org/release-group/${r['release-group'].id}/front-250`
+      : `https://coverartarchive.org/release/${r.id}/front-250`,
     category: musicCategory(r.media?.[0]?.format),
   };
 }

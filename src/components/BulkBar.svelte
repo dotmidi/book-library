@@ -80,10 +80,10 @@
   <div class="bar">
     <strong class="n">{t.selectedCount(ids.length)}</strong>
     <div class="actions">
-      <button class="small" disabled={!ids.length} onclick={() => (panel = 'location')}>📍 {t.fieldLabels.location}</button>
-      <button class="small" disabled={!ids.length} onclick={() => (panel = 'category')}>🏷 {t.fieldLabels.category}</button>
-      <button class="small" disabled={!ids.length} onclick={() => (panel = 'tag')}># {t.fieldLabels.tags}</button>
-      <button class="small" disabled={!ids.length || busy} onclick={moveShelf}>{shelf === 'owned' ? `☆ ${t.toWishlist}` : `✓ ${t.boughtIt}`}</button>
+      <button class="small" disabled={!ids.length} onclick={() => (panel = 'location')}>{t.fieldLabels.location}</button>
+      <button class="small" disabled={!ids.length} onclick={() => (panel = 'category')}>{t.fieldLabels.category}</button>
+      <button class="small" disabled={!ids.length} onclick={() => (panel = 'tag')}>{t.fieldLabels.tags}</button>
+      <button class="small" disabled={!ids.length || busy} onclick={moveShelf}>{shelf === 'owned' ? t.toWishlist : t.boughtIt}</button>
       <button class="small danger" disabled={!ids.length || busy} onclick={remove}>{t.deleteBook}</button>
     </div>
   </div>
@@ -111,7 +111,8 @@
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
+    flex-wrap: wrap;
   }
   .n {
     flex-shrink: 0;
@@ -119,9 +120,8 @@
   }
   .actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.4rem;
-    overflow-x: auto;
-    scrollbar-width: none;
   }
   .actions button {
     flex-shrink: 0;

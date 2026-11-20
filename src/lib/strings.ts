@@ -37,7 +37,7 @@ export const t = {
   dismiss: 'Dismiss',
 
   // library
-  libraryTitle: 'My books',
+  libraryTitle: 'Library',
   searchPlaceholder: 'Search title, author or ISBN',
   bookCount: (n: number) => `${n} ${n === 1 ? 'book' : 'books'}`,
   shownOf: (shown: number, total: number) => `${shown} of ${total} books`,
@@ -201,7 +201,7 @@ export const t = {
 
   // location & category
   locationPlaceholder: 'Country, city or shelf',
-  otherCategory: 'Other…',
+  otherCategory: 'Type your own…',
   customCategory: 'Type a category',
   noLocation: 'No location set',
   allCategories: 'All categories',
@@ -266,4 +266,5 @@ export const t = {
   friendAdded: (name: string) => `Added ${name}`,
   loadingFriendLibrary: 'Loading…',
   readOnly: 'View only',
+  clearSaved: (n: number) => `Clear ${n} saved`,
 };

@@ -77,7 +77,7 @@
       {#each suggestions as s, i (s.value)}
         <li role="option" aria-selected={i === active}>
           <button type="button" tabindex="-1" class:active={i === active} onmousedown={(e) => e.preventDefault()} onclick={() => pick(s.value)}>
-            <span class="flag">{s.flag || '📍'}</span>{s.label}
+            <span class="flag">{s.flag}</span>{s.label}
           </button>
         </li>
       {/each}

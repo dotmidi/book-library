@@ -8,7 +8,7 @@
 
 <div class="refresh">
   <button class="small ghost" onclick={() => library.refresh()} disabled={library.refreshing}>
-    {library.refreshing ? '…' : '↻'} {t.refresh}
+    {library.refreshing ? '…' : t.refresh}
   </button>
 </div>
 

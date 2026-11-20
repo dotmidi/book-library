@@ -15,6 +15,7 @@
       "score": 100,
       "title": "Abbey Road",
       "status": "Official",
+      "release-group": { "id": "9162580e-5df4-32de-80cc-f45a8d8a9b1d", "primary-type": "Album" },
       "text-representation": { "language": "eng", "script": "Latn" },
       "artist-credit": [{ "name": "The Beatles", "artist": { "id": "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d", "name": "The Beatles" } }],
       "date": "1987-10-21",
