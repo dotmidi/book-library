@@ -9,7 +9,7 @@ import { emptyBook, type Book } from '../types';
 import type { SeriesGroup } from '../series';
 import { formatVolume } from '../volume';
 import { guessLanguage } from '../isbnRegion';
-import { amazonCover } from '../lookup/covers';
+import { findCover } from '../lookup/covers';
 import { scanFeedback } from './feedback';
 
 export type CardState =
@@ -159,7 +159,7 @@ class ScanSession {
     const sample = all.find((b) => b.authors.join('; ') === common) ?? all[0];
     const title = formatVolume(group.name, volume);
     const language = guessLanguage(c.isbn13) || sample?.language || '';
-    const cover_url = await amazonCover(c.isbn13, c.isbn10);
+    const cover_url = await findCover({ isbn13: c.isbn13, isbn10: c.isbn10, title, authors: sample?.authors });
     const wished = library.findWishlistByTitle(title);
     if (wished && !this.wishlistMode) {
       c.bookId = wished.id;

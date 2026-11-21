@@ -1,12 +1,26 @@
 <script lang="ts">
   import type { Book } from '../lib/types';
-  import { sharpCover } from '../lib/lookup/covers';
+  import { findCover, sharpCover } from '../lib/lookup/covers';
 
   let { book, size = 'md' }: { book: Book; size?: 'sm' | 'md' | 'lg' } = $props();
   let failed = $state(false);
+  /** A cover found by findCover when the book has none (or its link is dead). */
+  let found = $state('');
   $effect(() => {
     void book.cover_url;
     failed = false;
+    found = '';
+  });
+  $effect(() => {
+    if ((book.cover_url && !failed) || found) return;
+    // CDs and vinyl: a book search on an album title could find the wrong picture.
+    if (book.barcode && !book.isbn13) return;
+    if (!book.isbn13 && !book.title) return;
+    let cancelled = false;
+    findCover({ isbn13: book.isbn13, isbn10: book.isbn10, title: book.title, authors: book.authors }).then((u) => {
+      if (!cancelled && u) found = u;
+    });
+    return () => (cancelled = true);
   });
 
   const hue = $derived.by(() => {
@@ -14,7 +28,7 @@
     for (const c of book.title || book.isbn13) h = (h * 31 + c.charCodeAt(0)) % 360;
     return h;
   });
-  const src = $derived(book.cover_url && !failed ? sharpCover(book.cover_url) : '');
+  const src = $derived(book.cover_url && !failed ? sharpCover(book.cover_url) : found ? sharpCover(found) : '');
 </script>
 
 <div class="cover {size}" style="--hue: {hue}">

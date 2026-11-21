@@ -13,7 +13,7 @@ import { lookupMusic } from './musicbrainz';
 import { searchByTitle } from './titleSearch';
 import { guessLanguage } from '../isbnRegion';
 import { normalizeVolume } from '../volume';
-import { amazonCover } from './covers';
+import { findCover } from './covers';
 
 /**
  * Every source, in order. Region specialists (with `prefixes`) are moved to the
@@ -55,12 +55,13 @@ export async function lookupBook(isbn13: string, opts: { force?: boolean; signal
     providers ??= defaultProviders();
     const out = await lookupIsbn(isbn13, providers, { signal: opts.signal });
     if (out.metadata) out.metadata = normalizeVolume(out.metadata);
-    // No source had a cover: Amazon often does (Japanese art books, the newest volumes).
+    // No source had a cover: Amazon or another edition on Google often does.
     if (out.metadata && !out.metadata.cover_url) {
-      const cover = await amazonCover(isbn13, out.metadata.isbn10 ?? '');
+      const m = out.metadata;
+      const cover = await findCover({ isbn13, isbn10: m.isbn10, title: m.title, authors: m.authors });
       if (cover) {
-        out.metadata.cover_url = cover;
-        out.sources = [...out.sources, 'Amazon (cover)'];
+        m.cover_url = cover;
+        out.sources = [...out.sources, 'cover search'];
       }
     }
     return out;

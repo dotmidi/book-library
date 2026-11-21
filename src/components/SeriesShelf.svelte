@@ -121,7 +121,7 @@
   }
 
   function placeholderBook(tile: Tile): Book {
-    return { ...emptyBook(), id: `vol-${tile.n}`, title: tile.title, cover_url: tile.cover };
+    return { ...emptyBook(), id: `vol-${tile.n}`, title: tile.title, isbn13: tile.isbn13, authors: book.authors, cover_url: tile.cover };
   }
 
   async function addToWishlist(tile: Tile) {

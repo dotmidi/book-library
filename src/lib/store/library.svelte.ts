@@ -23,7 +23,7 @@ import { sameBarcode } from '../barcode';
 import { groupSeries, parseVolume, sameVolumeTitle, seriesKey } from '../series';
 import { formatVolume } from '../volume';
 import { needsTranslation, sourceLanguage, splitParallelTitle, translateTitle } from '../translate';
-import { amazonCover } from '../lookup/covers';
+import { findCover } from '../lookup/covers';
 import { newId, todayIso, type Book } from '../types';
 import * as db from './db';
 import { applyOps, coalesce, type Op } from './ops';
@@ -304,16 +304,16 @@ class Library {
     return { title, title_en };
   }
 
-  /** Books with an ISBN but no cover: try Amazon's cover once per session, in the background. */
+  /** Books without a cover: look for one once per session, in the background, and save it to the sheet. */
   async fillMissingCovers() {
     if (this.fillingCovers) return;
     this.fillingCovers = true;
     try {
       for (;;) {
-        const b = this.books.find((x) => !x.cover_url && x.isbn13 && !this.coversTried.has(x.id));
+        const b = this.books.find((x) => !x.cover_url && (x.isbn13 || (x.title && !x.barcode)) && !this.coversTried.has(x.id));
         if (!b) break;
         this.coversTried.add(b.id);
-        const cover = await amazonCover(b.isbn13, b.isbn10);
+        const cover = await findCover({ isbn13: b.isbn13, isbn10: b.isbn10, title: b.title, authors: b.authors });
         if (cover) await this.update(b.id, { cover_url: cover });
       }
     } finally {

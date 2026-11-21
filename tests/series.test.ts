@@ -237,3 +237,21 @@ describe('seriesNameCandidates', () => {
     expect(seriesNameCandidates('ヱヴァンゲリヲン新劇場版:Qアニメーション原画集 上巻')[0]).toBe('ヱヴァンゲリヲン新劇場版:Q');
   });
 });
+
+describe('googleCoverQuery', () => {
+  it('searches volumes in the app format and requires the same volume', async () => {
+    const { googleCoverQuery } = await import('../src/lib/lookup/covers');
+    const q = googleCoverQuery('Royal Tailor vol.2')!;
+    expect(q.q).toBe('"Royal Tailor, Vol. 2"');
+    expect(q.matches('Royal Tailor: Clothier to the Crown Vol. 2')).toBe(true);
+    expect(q.matches('Royal Tailor: Clothier to the Crown Vol. 3')).toBe(false);
+    expect(q.matches('UPESSC PGT Art 2026 | Book 2')).toBe(false);
+  });
+  it('searches other books by title and author surname', async () => {
+    const { googleCoverQuery } = await import('../src/lib/lookup/covers');
+    const q = googleCoverQuery('Goodbye to Berlin', 'Christopher Isherwood')!;
+    expect(q.q).toBe('intitle:"Goodbye to Berlin" inauthor:"Isherwood"');
+    expect(q.matches('Goodbye to Berlin')).toBe(true);
+    expect(q.matches('Berlin Stories')).toBe(false);
+  });
+});
