@@ -103,6 +103,7 @@ export const t = {
   fieldLabels: {
     title: 'Title',
     subtitle: 'Subtitle',
+    title_en: 'English title',
     authors: 'Author(s)',
     publisher: 'Publisher',
     year: 'Year',
@@ -242,6 +243,8 @@ export const t = {
   // series
   seriesVol: (n: number) => `Vol. ${n}`,
   seriesBook: (n: number) => `Book ${n}`,
+  volumeOf: 'Volume of…',
+  volumeNumber: 'Volume number',
   seriesOut: (date: string) => {
     const d = new Date(`${date}T12:00:00`);
     const sameYear = d.getFullYear() === new Date().getFullYear();

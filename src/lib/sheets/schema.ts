@@ -1,6 +1,6 @@
 import type { BookField } from '../types';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 export const SPREADSHEET_TITLE = 'Book Library';
 export const BOOKS_TAB = 'Books';
 export const META_TAB = '_meta';
@@ -38,6 +38,7 @@ export const FIELDS: FieldDef[] = [
   { key: 'barcode', kind: 'code', aliases: ['upc', 'ean 13', 'streepjescode', 'barkod'], width: 120, since: 2 },
   { key: 'title', kind: 'text', aliases: ['titel', 'baslik', 'kitap', 'book', 'name', 'naam'], width: 240 },
   { key: 'subtitle', kind: 'text', aliases: ['ondertitel', 'alt baslik', 'altbaslik'], width: 160 },
+  { key: 'title_en', kind: 'text', aliases: ['english title', 'title english', 'engelse titel', 'ingilizce baslik', 'translation'], width: 200, since: 3 },
   { key: 'authors', kind: 'list', sep: '; ', aliases: ['author', 'auteur', 'auteurs', 'schrijver', 'yazar', 'yazarlar', 'writer', 'by'], width: 180 },
   { key: 'publisher', kind: 'text', aliases: ['uitgever', 'yayinevi', 'yayinci'], width: 140 },
   { key: 'year', kind: 'int', aliases: ['jaar', 'yil', 'published', 'publication year', 'year published'], width: 60 },

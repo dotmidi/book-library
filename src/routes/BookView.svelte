@@ -7,7 +7,7 @@
   import { t } from '../lib/strings';
   import { go } from '../lib/router.svelte';
   import { toast } from '../lib/toast.svelte';
-  import { displayTitle } from '../lib/search';
+  import { displayTitle, originalTitle } from '../lib/search';
   import { formatIsbn13 } from '../lib/isbn';
   import { todayIso, type Book } from '../lib/types';
   import { locationFlag } from '../lib/countries';
@@ -90,7 +90,8 @@
     <div class="hero">
       <Cover {book} size="lg" />
       <div class="htext">
-        <h1>{displayTitle(book, t.untitled)}</h1>
+        <h1>{originalTitle(book, t.untitled)}</h1>
+        {#if book.title_en && book.title_en !== book.title}<p class="translated">{book.title_en}</p>{/if}
         {#if book.subtitle}<p class="subtitle">{book.subtitle}</p>{/if}
         {#if book.authors.length}<p class="muted">{t.by} {book.authors.join(', ')}</p>{/if}
         <div class="row badges">
@@ -195,6 +196,10 @@
   }
   .subtitle {
     font-size: 1.05rem;
+  }
+  .translated {
+    margin-top: -0.25rem;
+    color: var(--muted);
   }
   .badges {
     margin-bottom: 0.75rem;

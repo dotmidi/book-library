@@ -2,7 +2,7 @@
   import Cover from './Cover.svelte';
   import BulkBar from './BulkBar.svelte';
   import { t } from '../lib/strings';
-  import { displayTitle, fold, matchesQuery, sortKeyAuthor, uniqueSorted } from '../lib/search';
+  import { displayTitle, matchesQuery, sortKeyAuthor, titleSortKey, uniqueSorted } from '../lib/search';
   import type { Book } from '../lib/types';
   import { locationFlag } from '../lib/countries';
 
@@ -84,8 +84,8 @@
     );
     const cmp: Record<Sort, (a: Book, b: Book) => number> = {
       recent: (a, b) => (b.date_added || '').localeCompare(a.date_added || ''),
-      title: (a, b) => fold(a.title).localeCompare(fold(b.title), undefined, { numeric: true }),
-      author: (a, b) => sortKeyAuthor(a).localeCompare(sortKeyAuthor(b)) || fold(a.title).localeCompare(fold(b.title), undefined, { numeric: true }),
+      title: (a, b) => titleSortKey(a).localeCompare(titleSortKey(b), undefined, { numeric: true }),
+      author: (a, b) => sortKeyAuthor(a).localeCompare(sortKeyAuthor(b)) || titleSortKey(a).localeCompare(titleSortKey(b), undefined, { numeric: true }),
       year: (a, b) => (b.year ?? 0) - (a.year ?? 0),
     };
     // Stable sort keeps sheet order (newest appended last → reversed for "recent").

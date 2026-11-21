@@ -20,7 +20,10 @@ import { getDriveUser } from '../google/drive';
 import { connectSpreadsheet, LayoutChangedError, loadLibrary, rememberBooksSheet, writePlan } from '../sheets/backend';
 import { changedFields } from '../sheets/mapping';
 import { sameBarcode } from '../barcode';
-import { sameVolumeTitle } from '../series';
+import { groupSeries, parseVolume, sameVolumeTitle, seriesKey } from '../series';
+import { formatVolume } from '../volume';
+import { needsTranslation, sourceLanguage, splitParallelTitle, translateTitle } from '../translate';
+import { amazonCover } from '../lookup/covers';
 import { newId, todayIso, type Book } from '../types';
 import * as db from './db';
 import { applyOps, coalesce, type Op } from './ops';
@@ -68,6 +71,10 @@ class Library {
   private hardErrors = 0;
   private cacheTimer: ReturnType<typeof setTimeout> | undefined;
   private started = false;
+  private translating = false;
+  private translateTried = new Set<string>();
+  private coversTried = new Set<string>();
+  private fillingCovers = false;
 
   /** @param redirectError message from handleRedirectReturn(), which main.ts runs first */
   async start(redirectError?: string) {
@@ -204,6 +211,8 @@ class Library {
     this.warnings = res.warnings;
     this.lastSync = Date.now();
     await this.saveCacheNow();
+    void this.translateMissing();
+    void this.fillMissingCovers();
   }
 
   /** Reload everything from the sheet (pull to refresh / "Refresh" button). */
@@ -262,10 +271,76 @@ class Library {
     b.id ||= newId();
     b.date_added ||= todayIso();
     b.needs_details = b.needs_details || !b.title;
+    Object.assign(b, this.tidyTitle(b));
     // Appended like in the sheet, so "recently added" sorting matches after a reload.
     this.books = [...this.books, b];
     await this.enqueue({ kind: 'add', book: b });
+    void this.translateMissing();
     return b;
+  }
+
+  /**
+   * A new book's title in the library's own style:
+   *  - "X = Y" parallel titles keep only X (the English title is translated from it);
+   *  - a volume of a series you already have gets that series' name: "Quintessential
+   *    Quintuplets 7" next to "The Quintessential Quintuplets, Vol. 1" becomes
+   *    "The Quintessential Quintuplets, Vol. 7".
+   */
+  tidyTitle(b: Pick<Book, 'title' | 'title_en'>): Pick<Book, 'title' | 'title_en'> {
+    // The English half of a parallel title is often incomplete, so it's translated properly instead.
+    let title = splitParallelTitle(b.title).title;
+    const title_en = b.title_en;
+    const p = parseVolume(title);
+    if (p && !p.to) {
+      const groups = groupSeries(this.books);
+      const key = seriesKey(p.base);
+      // Same name, or your series' name plus an edition subtitle
+      // ("Horimiya - Horisan ile Miyamurakun 2. Cilt" joins "Horimiya").
+      const group =
+        groups.get(key) ??
+        [...groups.values()].filter((g) => g.confirmed && key.startsWith(`${g.key} `)).sort((a, b) => b.key.length - a.key.length)[0];
+      if (group) title = formatVolume(group.name, p.volume);
+    }
+    return { title, title_en };
+  }
+
+  /** Books with an ISBN but no cover: try Amazon's cover once per session, in the background. */
+  async fillMissingCovers() {
+    if (this.fillingCovers) return;
+    this.fillingCovers = true;
+    try {
+      for (;;) {
+        const b = this.books.find((x) => !x.cover_url && x.isbn13 && !this.coversTried.has(x.id));
+        if (!b) break;
+        this.coversTried.add(b.id);
+        const cover = await amazonCover(b.isbn13, b.isbn10);
+        if (cover) await this.update(b.id, { cover_url: cover });
+      }
+    } finally {
+      this.fillingCovers = false;
+    }
+  }
+
+  /** Fill in English titles for books in other languages, one at a time in the background. */
+  async translateMissing(retry = false) {
+    if (retry) this.translateTried.clear();
+    if (this.translating) return;
+    this.translating = true;
+    try {
+      for (;;) {
+        const b = this.books.find((x) => needsTranslation(x) && !this.translateTried.has(x.id));
+        if (!b) break;
+        this.translateTried.add(b.id);
+        try {
+          const en = await translateTitle(b.title, sourceLanguage(b.title, b.language)!);
+          if (en) await this.update(b.id, { title_en: en });
+        } catch {
+          break; // offline or today's quota used up: the rest are done another time
+        }
+      }
+    } finally {
+      this.translating = false;
+    }
   }
 
   async update(id: string, patch: Partial<Book>): Promise<void> {

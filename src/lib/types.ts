@@ -7,6 +7,8 @@ export interface Book {
   barcode: string;
   title: string;
   subtitle: string;
+  /** English translation of a title in another language (shown in the library; the book page shows the original). */
+  title_en: string;
   authors: string[];
   publisher: string;
   year: number | null;
@@ -57,6 +59,7 @@ export function emptyBook(): Book {
     barcode: '',
     title: '',
     subtitle: '',
+    title_en: '',
     authors: [],
     publisher: '',
     year: null,

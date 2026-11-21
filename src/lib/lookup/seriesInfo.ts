@@ -178,13 +178,31 @@ export function volumeQueries(name: string, author = ''): string[] {
   return out;
 }
 
+/** Volume numbers missing between 1 and the highest one found. */
+export function volumeGaps(found: Map<number, unknown>): number[] {
+  const max = Math.max(0, ...found.keys());
+  const out: number[] = [];
+  for (let n = 1; n <= max; n++) if (!found.has(n)) out.push(n);
+  return out;
+}
+
+const MAX_GAP_QUERIES = 6;
+
 export async function searchVolumes(name: string, language: string, author = '', kind: EditionKind = ''): Promise<Map<number, VolumeInfo>> {
   const lang = LANG_CODES[language];
+  const found = new Map<number, VolumeInfo>();
+  // Each query can miss volumes (Google's author search left out "Horimiya, Vol. 6"),
+  // so the next one runs while there are gaps, and its finds are merged in.
   for (const q of volumeQueries(name, author)) {
-    const found = await volumesFor(q, name, lang, kind);
-    if (found.size) return found;
+    for (const [n, v] of await volumesFor(q, name, lang, kind)) if (!found.has(n)) found.set(n, v);
+    if (found.size && !volumeGaps(found).length) break;
   }
-  return new Map();
+  // Still missing: ask for those volumes by name, a few at most.
+  for (const n of volumeGaps(found).slice(0, MAX_GAP_QUERIES)) {
+    const got = mapVolumes(name, await googlePage(`"${name.replace(/"/g, '')}, Vol. ${n}"`, lang, 0), lang, kind).get(n);
+    if (got) found.set(n, got);
+  }
+  return found;
 }
 
 export interface SeriesFacts {
@@ -197,7 +215,7 @@ const DAY = 24 * 3600 * 1000;
 
 /** AniList + Google Books facts for a series, cached on this device (a week; a day if nothing was found). */
 export async function seriesFacts(name: string, language: string, author = '', kind: EditionKind = '', force = false): Promise<SeriesFacts> {
-  const cacheKey = `series5:${seriesKey(name)}:${language}:${seriesKey(author)}:${kind}`;
+  const cacheKey = `series6:${seriesKey(name)}:${language}:${seriesKey(author)}:${kind}`;
   if (!force) {
     const c = (await getLookup(cacheKey)) as unknown as { facts?: SeriesFacts } | undefined;
     const maxAge = c?.facts?.volumes.length ? 7 * DAY : DAY;

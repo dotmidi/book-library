@@ -72,6 +72,8 @@
       isbn10,
       title: f.title.trim(),
       subtitle: f.subtitle.trim(),
+      // A changed title gets a fresh translation unless you also edited the English one.
+      title_en: f.title.trim() !== initial.title && f.title_en === initial.title_en ? '' : f.title_en.trim(),
       authors: f.authorsText.split(/\s*;\s*/).map((s) => s.trim()).filter(Boolean),
       publisher: f.publisher.trim(),
       year: toInt(f.yearText),
@@ -80,7 +82,7 @@
       cover_url: f.cover_url.trim(),
       location: f.location.trim(),
       category: f.category.trim(),
-      barcode: f.barcode.replace(/D/g, ''),
+      barcode: f.barcode.replace(/\D/g, ''),
       tags: f.tagsText.split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean),
       notes: f.notes.trim(),
       copies: Math.max(1, toInt(String(f.copies)) ?? 1),
@@ -137,6 +139,10 @@
     <div class="field">
       <label for="subtitle-{uid}">{t.fieldLabels.subtitle}</label>
       <input id="subtitle-{uid}" bind:value={f.subtitle} autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="title-en-{uid}">{t.fieldLabels.title_en}</label>
+      <input id="title-en-{uid}" bind:value={f.title_en} autocomplete="off" />
     </div>
     <div class="grid2">
       <div class="field">

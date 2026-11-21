@@ -11,7 +11,7 @@ export function fold(s: string): string {
 }
 
 export function searchText(b: Book): string {
-  return fold([b.title, b.subtitle, b.authors.join(' '), b.publisher, b.isbn13, b.isbn10, b.tags.join(' '), b.location, b.lent_to].join(' '));
+  return fold([b.title, b.title_en, b.subtitle, b.authors.join(' '), b.publisher, b.isbn13, b.isbn10, b.tags.join(' '), b.location, b.lent_to].join(' '));
 }
 
 export function matchesQuery(b: Book, query: string): boolean {
@@ -32,8 +32,21 @@ export function uniqueSorted(values: string[]): string[] {
   return [...seen.values()].sort((a, b) => a.localeCompare(b));
 }
 
-export function displayTitle(b: Book, fallback: string): string {
+/** The title as written on the book (shown on the book's own page). */
+export function originalTitle(b: Book, fallback: string): string {
   return b.title || (b.isbn13 ? `${fallback} (${b.isbn13})` : fallback);
+}
+
+/** The title shown in the library: the English translation when there is one. */
+export function displayTitle(b: Book, fallback: string): string {
+  return b.title_en || originalTitle(b, fallback);
+}
+
+const ARTICLE = /^(?:the|a|an|de|het|een|le|la|les|der|die|das)\s+|^l'/;
+
+/** A–Z key: the shown title without a leading article ("The Quintessential Quintuplets" sorts under Q). */
+export function titleSortKey(b: Book): string {
+  return fold(b.title_en || b.title).replace(/^[^\p{L}\p{N}]+/u, '').replace(ARTICLE, '');
 }
 
 export function sortKeyAuthor(b: Book): string {

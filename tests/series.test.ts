@@ -17,6 +17,7 @@ describe('parseVolume', () => {
     expect(parseVolume('Toradora Volume 3 Toradora')).toMatchObject({ base: 'Toradora', volume: 3 });
     expect(parseVolume('D. Gray-Man, Vol. 25')).toMatchObject({ base: 'D. Gray-Man', volume: 25 });
     expect(parseVolume('Band of Brothers')).toBeNull();
+    expect(parseVolume('Horimiya - Horisan ile Miyamurakun 2. Cilt')).toMatchObject({ base: 'Horimiya - Horisan ile Miyamurakun', volume: 2, strong: true });
     expect(parseVolume('Snotgirl #8')).toBeNull();
     expect(parseVolume('Ojojojo Vol. 1-2')).toEqual({ base: 'Ojojojo', volume: 1, to: 2, strong: true });
     expect(parseVolume('Ojojojo Omnibus 3-4')).toMatchObject({ volume: 3, to: 4 });
@@ -188,5 +189,51 @@ describe('Open Library series', () => {
     ]);
     expect(books[0].cover).toBe('https://covers.openlibrary.org/b/id/9289603-M.jpg');
     expect(books[0].isbns).toEqual(['9781526663559']);
+  });
+});
+
+describe('translation helpers', () => {
+  it('picks the source language from the script, then the language field', async () => {
+    const { sourceLanguage } = await import('../src/lib/translate');
+    expect(sourceLanguage('よふかしのうた公式ファンブック', 'Japanese')).toBe('ja');
+    expect(sourceLanguage('初級日本語〈げんき〉ワークブック １', 'English')).toBe('ja');
+    expect(sourceLanguage('Nutuk', 'Turkish')).toBe('tr');
+    expect(sourceLanguage('How to Build a Car', 'English')).toBeNull();
+    expect(sourceLanguage('Look Back', '')).toBeNull();
+  });
+  it('splits parallel titles', async () => {
+    const { splitParallelTitle } = await import('../src/lib/translate');
+    expect(splitParallelTitle('ソードアート・オンラインabec画集 = SWORD ART ONLINE')).toEqual({ title: 'ソードアート・オンラインabec画集', english: 'SWORD ART ONLINE' });
+    expect(splitParallelTitle('Horimiya =')).toEqual({ title: 'Horimiya', english: '' });
+    expect(splitParallelTitle('2 + 2 = 4')).toEqual({ title: '2 + 2 = 4', english: '' });
+  });
+});
+
+describe('titleSortKey', () => {
+  it('ignores a leading article and sorts by the shown title', async () => {
+    const { titleSortKey } = await import('../src/lib/search');
+    expect(titleSortKey(book('The Quintessential Quintuplets, Vol. 1'))).toBe(titleSortKey(book('Quintessential Quintuplets, Vol. 1')));
+    expect(titleSortKey(book('よふかしのうた', { title_en: 'Call of the Night' }))).toBe('call of the night');
+  });
+});
+
+describe('covers', () => {
+  it('asks for sharper Google and Open Library images', async () => {
+    const { sharpCover } = await import('../src/lib/lookup/covers');
+    expect(sharpCover('https://books.google.com/books/content?id=X&printsec=frontcover&img=1&zoom=1')).toBe(
+      'https://books.google.com/books/content?id=X&printsec=frontcover&img=1&zoom=1&fife=w400-h600',
+    );
+    expect(sharpCover('https://covers.openlibrary.org/b/id/8820474-M.jpg')).toBe('https://covers.openlibrary.org/b/id/8820474-L.jpg');
+    expect(sharpCover('https://images-na.ssl-images-amazon.com/images/P/1646511637.01.LZZZZZZZ.jpg')).toContain('LZZZZZZZ');
+  });
+});
+
+describe('seriesNameCandidates', () => {
+  it('cuts Japanese titles where the book type starts', async () => {
+    const { seriesNameCandidates } = await import('../src/lib/translate');
+    expect(seriesNameCandidates('よふかしのうた公式ファンブック')).toEqual(['よふかしのうた']);
+    expect(seriesNameCandidates('その着せ替え人形は恋をする Season 2 TVアニメ公式ファンブック')).toEqual(['その着せ替え人形は恋をする']);
+    expect(seriesNameCandidates('ウマ娘プリティーダービーアニメーションガイドROAD TO THE TOP')).toContain('ウマ娘プリティーダービー');
+    expect(seriesNameCandidates('ヱヴァンゲリヲン新劇場版:Qアニメーション原画集 上巻')[0]).toBe('ヱヴァンゲリヲン新劇場版:Q');
   });
 });

@@ -17,7 +17,7 @@ export interface ParsedVolume {
 
 // "#3" is left out on purpose: in comics it's a single issue, not a volume.
 const KEYWORD = String.raw`(?:vol(?:ume)?s?\.?|v\.|tome|tomo|deel|dl\.|cilt|band|bd\.|omnibus)`;
-const STRONG = new RegExp(String.raw`^(.*?\S)[\s,:;.\-–—]*(?:[(\[]\s*)?(?:${KEYWORD}\s*(\d{1,3})(?:\s*[-–]\s*(\d{1,3}))?|第?\s*(\d{1,3})\s*(?:巻|권))(?:\s*[)\]])?(?:[\s:;,.\-–—]+.*)?$`, 'i');
+const STRONG = new RegExp(String.raw`^(.*?\S)[\s,:;.\-–—]*(?:[(\[]\s*)?(?:${KEYWORD}\s*(\d{1,3})(?:\s*[-–]\s*(\d{1,3}))?|第?\s*(\d{1,3})\s*(?:巻|권|\.\s*cilt))(?:\s*[)\]])?(?:[\s:;,.\-–—]+.*)?$`, 'i');
 const WEAK = /^(.*?\S)[\s,:\-–—]+0*(\d{1,2})$/;
 /** Edition notes that sit after the number: "Bless 3 (Manga)". */
 const SUFFIX = /\s*[(\[](?:manga|light novel|novel|comic|graphic novel|paperback|hardcover)[)\]]\s*$/i;

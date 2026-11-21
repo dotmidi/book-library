@@ -6,12 +6,44 @@
   import { t } from '../lib/strings';
   import { formatIsbn13 } from '../lib/isbn';
   import type { Book } from '../lib/types';
+  import { groupSeries } from '../lib/series';
 
   let { card }: { card: ScanCard } = $props();
   const existing = $derived(card.bookId ? library.get(card.bookId) : undefined);
   const shown = $derived<Book>(['duplicate', 'copyAdded', 'onWishlist', 'bought'].includes(card.state) ? (existing ?? card.draft) : card.draft);
   const codeLabel = $derived(card.kind === 'isbn' ? formatIsbn13(card.isbn13) : card.code);
   let prevState = $state<ScanCard['state']>('found');
+
+  // "Volume of…": for ISBNs nothing knows, e.g. a Turkish volume of a series you have.
+  const seriesChoices = $derived(
+    card.state === 'notfound' && card.kind === 'isbn'
+      ? [...groupSeries(library.books).values()].filter((g) => g.confirmed).sort((a, b) => a.name.localeCompare(b.name))
+      : [],
+  );
+  let pickKey = $state('');
+  let pickVol = $state(1);
+  let addingVol = $state(false);
+  const picked = $derived(seriesChoices.find((g) => g.key === pickKey));
+
+  function choose(key: string) {
+    pickKey = key;
+    const g = seriesChoices.find((x) => x.key === key);
+    if (!g) return;
+    // The first volume you don't own yet.
+    let n = 1;
+    while (g.volumes.get(n)?.some((b) => !b.wishlist)) n++;
+    pickVol = n;
+  }
+
+  async function addAsVolume() {
+    if (!picked || pickVol < 1) return;
+    addingVol = true;
+    try {
+      await scanSession.saveAsVolume(card.key, picked, Math.round(pickVol));
+    } finally {
+      addingVol = false;
+    }
+  }
 
   function edit() {
     prevState = card.state;
@@ -63,6 +95,18 @@
         <button class="primary" onclick={edit}>{t.fillInDetails}</button>
         <button onclick={() => scanSession.save(card.key)}>{card.kind === 'barcode' ? t.saveBarcodeOnly : t.saveIsbnOnly}</button>
         {#if card.state === 'error'}<button class="ghost" onclick={() => scanSession.lookup(card.key, true)}>{t.retryLookup}</button>{/if}
+        {#if seriesChoices.length}
+          <div class="row volof">
+            <select aria-label={t.volumeOf} value={pickKey} onchange={(e) => choose(e.currentTarget.value)}>
+              <option value="">{t.volumeOf}</option>
+              {#each seriesChoices as g (g.key)}<option value={g.key}>{g.name}</option>{/each}
+            </select>
+            {#if picked}
+              <input type="number" min="1" step="1" aria-label={t.volumeNumber} bind:value={pickVol} />
+              <button class="primary" disabled={addingVol} onclick={addAsVolume}>{t.save}</button>
+            {/if}
+          </div>
+        {/if}
       {:else if card.state === 'duplicate'}
         {#if !existing?.wishlist}<button class="primary" onclick={() => scanSession.addCopy(card.key)}>{t.addAnotherCopy}</button>{/if}
         <a class="button" href="#/book/{card.bookId}">{t.view}</a>
@@ -117,6 +161,17 @@
   }
   .actions {
     margin-top: 0.6rem;
+  }
+  .volof {
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+  .volof select {
+    flex: 1;
+    min-width: 0;
+  }
+  .volof input {
+    width: 4.5rem;
   }
   .actions:empty {
     display: none;

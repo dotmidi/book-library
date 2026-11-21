@@ -5,7 +5,11 @@
 import { parseCode } from '../barcode';
 import { lookupBarcode, lookupBook, metadataToBook } from '../lookup/service';
 import { library } from '../store/library.svelte';
-import type { Book } from '../types';
+import { emptyBook, type Book } from '../types';
+import type { SeriesGroup } from '../series';
+import { formatVolume } from '../volume';
+import { guessLanguage } from '../isbnRegion';
+import { amazonCover } from '../lookup/covers';
 import { scanFeedback } from './feedback';
 
 export type CardState =
@@ -136,6 +140,45 @@ class ScanSession {
     c.bookId = saved.id;
     c.draft = saved;
     c.state = 'saved';
+  }
+
+  /**
+   * An ISBN no source knows (often a translated edition, e.g. a Turkish manga
+   * volume), saved as a volume of a series you already have: the title and
+   * author come from the series, the language from the ISBN, the cover from
+   * Amazon when it has one. A wishlist entry for that volume is completed instead.
+   */
+  async saveAsVolume(key: number, group: SeriesGroup, volume: number) {
+    const c = this.card(key);
+    if (!c || c.kind !== 'isbn') return;
+    // The author spelling most volumes share (one odd "Hero (Manga author)" shouldn't win).
+    const all = [...group.volumes.values()].flat();
+    const counts = new Map<string, number>();
+    for (const b of all) if (b.authors.length) counts.set(b.authors.join('; '), (counts.get(b.authors.join('; ')) ?? 0) + 1);
+    const common = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const sample = all.find((b) => b.authors.join('; ') === common) ?? all[0];
+    const title = formatVolume(group.name, volume);
+    const language = guessLanguage(c.isbn13) || sample?.language || '';
+    const cover_url = await amazonCover(c.isbn13, c.isbn10);
+    const wished = library.findWishlistByTitle(title);
+    if (wished && !this.wishlistMode) {
+      c.bookId = wished.id;
+      c.wishBefore = $state.snapshot(wished) as Book;
+      await library.update(wished.id, { isbn13: c.isbn13, isbn10: c.isbn10, language, cover_url: cover_url || wished.cover_url, wishlist: false, needs_details: false });
+      c.state = 'bought';
+      return;
+    }
+    const book: Book = {
+      ...emptyBook(),
+      isbn13: c.isbn13,
+      isbn10: c.isbn10,
+      title,
+      authors: sample?.authors ?? [],
+      category: sample?.category ?? '',
+      language,
+      cover_url,
+    };
+    await this.save(key, book);
   }
 
   async addCopy(key: number) {

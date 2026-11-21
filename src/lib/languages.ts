@@ -60,3 +60,10 @@ export function languageName(input: string | undefined | null): string {
   const key = s.replace(/^\/languages\//, '').toLowerCase();
   return LOOKUP.get(key) ?? LOOKUP.get(key.split(/[-_]/)[0]) ?? s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+/** Readable name or code → ISO 639-1 code ("Turkish" → "tr"); '' when unknown. */
+export function languageCode(input: string | undefined | null): string {
+  const name = languageName(input);
+  const row = LANGS.find(([n]) => n === name);
+  return row?.slice(1).find((c) => /^[a-z]{2}$/.test(c)) ?? '';
+}

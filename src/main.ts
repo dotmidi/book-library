@@ -18,4 +18,7 @@ if (redirect.handled) router.sync();
 preloadAuth();
 library.start(redirect.error);
 
+// Local development only (not in the built app): the live store, for one-off maintenance from the console.
+if (import.meta.env.DEV) (window as unknown as { __library: typeof library }).__library = library;
+
 mount(App, { target: document.getElementById('app')! });

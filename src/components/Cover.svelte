@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Book } from '../lib/types';
+  import { sharpCover } from '../lib/lookup/covers';
 
   let { book, size = 'md' }: { book: Book; size?: 'sm' | 'md' | 'lg' } = $props();
   let failed = $state(false);
@@ -13,7 +14,7 @@
     for (const c of book.title || book.isbn13) h = (h * 31 + c.charCodeAt(0)) % 360;
     return h;
   });
-  const src = $derived(book.cover_url && !failed ? book.cover_url : '');
+  const src = $derived(book.cover_url && !failed ? sharpCover(book.cover_url) : '');
 </script>
 
 <div class="cover {size}" style="--hue: {hue}">
