@@ -80,11 +80,11 @@ your library. When you buy one, open it and tap **Bought it**. Scanning it again
 
 - **Library** has two shelves at the top: **My books** and **Wishlist**. Search by title, author or ISBN.
 - **Filters:**
-  - **location**, which shows country flags; "No location set" finds books you still need to sort
+  - **location**; "No location set" finds books you still need to sort
   - **category** (Novel, Manga, Comic, Artbook, CD, Vinyl…)
   - **tag**
 - **Sorting:** recently added, title, author or year. Switch between **Covers** and **List**.
-- **Location** can be a country (pick from the list to get its flag, e.g. 🇹🇷 Turkey) or anything else ("Living room").
+- **Location** can be a country (picked from the list; its flag shows on the book's page, e.g. 🇹🇷 Turkey) or anything else ("Living room").
 - **Changing many books at once:**
   1. Tap **Select**, then tap books, or use **Select all shown** after filtering.
   2. Then set the location or category, add or remove a tag, move them to or from the wishlist, or delete them.
