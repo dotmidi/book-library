@@ -19,6 +19,8 @@
 
   onMount(async () => {
     await friends.load();
+    // Fetch every friend's library in the background so the list shows book counts right away.
+    friends.preloadAll();
     name = friends.displayName;
     // Opened from a friend's share link: #/friends?add=CODE
     const code = router.route.query.get('add');
@@ -135,7 +137,15 @@
             <a href="#/friends/{f.code}">
               <span class="avatar" aria-hidden="true">{(f.name || '?').slice(0, 1).toUpperCase()}</span>
               <span class="fname">{t.friendLibraryName(f.name || '?')}</span>
-              <span class="muted small">{friends.libraries[f.code] ? t.bookCount(friends.libraries[f.code].books.filter((b) => !b.wishlist).length) : ''}</span>
+              <span class="muted small count">
+                {#if friends.libraries[f.code]}
+                  {t.bookCount(friends.libraries[f.code].books.filter((b) => !b.wishlist).length)}
+                {:else if friends.libraryErrors[f.code]}
+                  {t.notSharedShort}
+                {:else}
+                  …
+                {/if}
+              </span>
             </a>
             <button class="small ghost" aria-label={t.removeFriend} onclick={() => confirm(t.removeFriendConfirm(f.name || '?')) && friends.remove(f.code)}>✕</button>
           </li>
@@ -236,6 +246,11 @@
   .fname {
     font-weight: 600;
     flex: 1;
+  }
+  /* Fixed width so the row doesn't shift when the count arrives. */
+  .count {
+    min-width: 5.5rem;
+    text-align: right;
   }
   .candidate {
     background: var(--ok-soft);

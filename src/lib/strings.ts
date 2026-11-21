@@ -267,5 +267,6 @@ export const t = {
   friendAdded: (name: string) => `Added ${name}`,
   loadingFriendLibrary: 'Loading…',
   readOnly: 'View only',
+  notSharedShort: 'Not shared',
   clearSaved: (n: number) => `Clear ${n} saved`,
 };

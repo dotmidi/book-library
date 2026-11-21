@@ -30,7 +30,14 @@ class Friends {
   friends = $state<Friend[]>([]);
   libraries = $state<Record<string, SharedLibrary>>({});
   libraryErrors = $state<Record<string, string>>({});
+  /** Friend libraries currently being fetched (for the "…" placeholder). */
+  libraryLoading = $state<Record<string, boolean>>({});
   busy = $state(false);
+
+  /** Load every friend's library in the background, so the list can show book counts. */
+  async preloadAll() {
+    await Promise.all(this.friends.map((f) => this.open(f.code)));
+  }
 
   get myCode() {
     return library.spreadsheetId;
@@ -91,6 +98,7 @@ class Friends {
   /** Load a friend's library (API key, no sign-in needed). */
   async open(code: string, force = false): Promise<SharedLibrary | null> {
     if (!force && this.libraries[code] && Date.now() - this.libraries[code].loadedAt < 5 * 60_000) return this.libraries[code];
+    this.libraryLoading[code] = true;
     try {
       const lib = await readSharedLibrary(code);
       this.libraries[code] = lib;
@@ -105,6 +113,8 @@ class Friends {
     } catch (e) {
       this.libraryErrors[code] = e instanceof NotSharedError ? e.message : message(e);
       return null;
+    } finally {
+      delete this.libraryLoading[code];
     }
   }
 
