@@ -28,13 +28,20 @@
           })(),
   );
 
+  /** Saving a book you already own: the first Save warns, the second adds a copy. */
+  let warnedDup = '';
+
   async function save(b: Book) {
     if (existing) {
       await library.update(existing.id, b);
       go(`/book/${existing.id}`, { replace: true });
     } else {
       const dup = b.isbn13 ? library.findByIsbn(b.isbn13) : undefined;
-      if (dup && !confirm(`${t.alreadyOwned(dup.copies)}. ${t.addAnotherCopy}?`)) return;
+      if (dup && warnedDup !== dup.id) {
+        warnedDup = dup.id;
+        toast.show(t.saveAgainForCopy(t.alreadyOwned(dup.copies)));
+        return;
+      }
       if (dup) {
         await library.addCopy(dup.id);
         go(`/book/${dup.id}`, { replace: true });

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { library } from '../lib/store/library.svelte';
+  import ConfirmButton from '../components/ConfirmButton.svelte';
   import { getAuthMode, setAuthMode } from '../lib/auth/google';
   import { sheetUrl, xlsxUrl } from '../lib/google/sheets';
   import { config } from '../lib/config';
@@ -15,7 +16,6 @@
   }
 
   async function signOut() {
-    if (library.pending > 0 && !confirm(t.signOutPendingConfirm(library.pending))) return;
     await library.signOut();
   }
 </script>
@@ -69,7 +69,7 @@
     {/if}
     <div class="row">
       <button onclick={() => library.signIn(true)}>{t.switchAccount}</button>
-      <button class="danger" onclick={signOut}>{t.signOut}</button>
+      <ConfirmButton class="danger" label={t.signOut} confirmLabel={t.confirmSignOut} note={t.signOutPendingNote(library.pending)} skip={library.pending === 0} onconfirm={signOut} />
     </div>
   </section>
 

@@ -37,7 +37,7 @@
   </div>
 {:else if bookId}
   {#if book}
-    <BookView friendBook={book} backHref="#/friends/{code}" backLabel={t.friendLibraryName(name)} />
+    <BookView friendBook={book} friendBooks={lib.books} friendCode={code} backHref="#/friends/{code}" backLabel={t.friendLibraryName(name)} />
   {:else}
     <div class="page"><p>{t.bookNotFound}</p><a class="button" href="#/friends/{code}">{t.friendLibraryName(name)}</a></div>
   {/if}

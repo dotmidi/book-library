@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import ConfirmButton from '../components/ConfirmButton.svelte';
   import { friends } from '../lib/friends/store.svelte';
   import { shareLink } from '../lib/friends/sharing';
   import type { SharedLibrary } from '../lib/friends/publicRead';
@@ -76,7 +77,7 @@
   }
 
   async function stopSharing() {
-    if (confirm(t.stopSharingConfirm)) await friends.unshare();
+    await friends.unshare();
   }
 </script>
 
@@ -122,7 +123,7 @@
         <button class="ghost small" onclick={() => copy(friends.myCode)}>{t.copyCodeOnly}</button>
       </div>
       <p class="small warn">{t.shareWarning}</p>
-      <button class="danger" disabled={friends.busy} onclick={stopSharing}>{t.stopSharing}</button>
+      <ConfirmButton class="danger" disabled={friends.busy} label={t.stopSharing} confirmLabel={t.confirmStopSharing} note={t.stopSharingNote} onconfirm={stopSharing} />
     {/if}
   </section>
 
@@ -147,7 +148,7 @@
                 {/if}
               </span>
             </a>
-            <button class="small ghost" aria-label={t.removeFriend} onclick={() => confirm(t.removeFriendConfirm(f.name || '?')) && friends.remove(f.code)}>✕</button>
+            <ConfirmButton class="small ghost" ariaLabel={t.removeFriend} label="✕" confirmLabel={t.confirmRemove} onconfirm={() => friends.remove(f.code)} />
           </li>
         {/each}
       </ul>

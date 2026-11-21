@@ -20,6 +20,7 @@ import { getDriveUser } from '../google/drive';
 import { connectSpreadsheet, LayoutChangedError, loadLibrary, rememberBooksSheet, writePlan } from '../sheets/backend';
 import { changedFields } from '../sheets/mapping';
 import { sameBarcode } from '../barcode';
+import { sameVolumeTitle } from '../series';
 import { newId, todayIso, type Book } from '../types';
 import * as db from './db';
 import { applyOps, coalesce, type Op } from './ops';
@@ -242,6 +243,12 @@ class Library {
   findByBarcode(barcode: string): Book | undefined {
     if (!barcode) return undefined;
     return this.books.find((b) => sameBarcode(b.barcode, barcode));
+  }
+
+  /** A wishlist entry with the same title (e.g. "Series, Vol. 4" added from the series shelf). */
+  findWishlistByTitle(title: string): Book | undefined {
+    if (!title.trim()) return undefined;
+    return this.books.find((b) => b.wishlist && b.title && sameVolumeTitle(b.title, title));
   }
 
   get(id: string): Book | undefined {

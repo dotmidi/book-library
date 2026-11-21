@@ -37,6 +37,8 @@ export interface ScanCard {
   bookId?: string;
   /** For "Undo" after a copy was added. */
   copiesBefore?: number;
+  /** A wishlist entry matched by title: how it was before "Bought it" filled in this scan's details. */
+  wishBefore?: Book;
 }
 
 const AUTO_KEY = 'bl.autoSave';
@@ -109,6 +111,14 @@ class ScanSession {
     card.sources = out.sources;
     if (out.metadata) {
       card.draft = metadataToBook(out.metadata, card.isbn13, card.isbn10, card.kind === 'barcode' ? card.code : '');
+      // Already on the wishlist under its title (no ISBN yet, or another edition's): offer "Bought it".
+      const wished = this.wishlistMode ? undefined : library.findWishlistByTitle(card.draft.title);
+      if (wished) {
+        card.bookId = wished.id;
+        card.wishBefore = $state.snapshot(wished) as Book;
+        card.state = 'onWishlist';
+        return;
+      }
       card.state = 'found';
       if (this.autoSave) await this.save(key);
     } else if (out.errors.length) {
@@ -141,7 +151,19 @@ class ScanSession {
   async markBought(key: number) {
     const c = this.card(key);
     if (!c?.bookId) return;
-    await library.update(c.bookId, { wishlist: false });
+    if (c.wishBefore) {
+      // Take the scanned copy's ISBN and cover, and fill in whatever else was blank.
+      const d = c.draft;
+      const scanned: Partial<Book> = { wishlist: false, needs_details: false };
+      if (d.isbn13) scanned.isbn13 = d.isbn13;
+      if (d.isbn10) scanned.isbn10 = d.isbn10;
+      if (d.barcode) scanned.barcode = d.barcode;
+      if (d.cover_url) scanned.cover_url = d.cover_url;
+      for (const k of ['subtitle', 'publisher', 'language', 'category'] as const) if (!c.wishBefore[k] && d[k]) scanned[k] = d[k];
+      for (const k of ['year', 'pages'] as const) if (c.wishBefore[k] === null && d[k] !== null) scanned[k] = d[k];
+      if (!c.wishBefore.authors.length && d.authors.length) scanned.authors = d.authors;
+      await library.update(c.bookId, scanned);
+    } else await library.update(c.bookId, { wishlist: false });
     c.state = 'bought';
   }
 
@@ -156,7 +178,13 @@ class ScanSession {
       await library.update(c.bookId, { copies: c.copiesBefore ?? 1 });
       c.state = 'duplicate';
     } else if (c.state === 'bought') {
-      await library.update(c.bookId, { wishlist: true });
+      const w = c.wishBefore;
+      await library.update(
+        c.bookId,
+        w
+          ? { wishlist: true, isbn13: w.isbn13, isbn10: w.isbn10, barcode: w.barcode, cover_url: w.cover_url, subtitle: w.subtitle, publisher: w.publisher, language: w.language, category: w.category, year: w.year, pages: w.pages, authors: w.authors, needs_details: w.needs_details }
+          : { wishlist: true },
+      );
       c.state = 'onWishlist';
     }
   }

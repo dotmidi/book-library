@@ -1,5 +1,6 @@
 <script lang="ts">
   import LocationInput from './LocationInput.svelte';
+  import ConfirmButton from './ConfirmButton.svelte';
   import CategoryPicker from './CategoryPicker.svelte';
   import { library } from '../lib/store/library.svelte';
   import { toast } from '../lib/toast.svelte';
@@ -48,7 +49,6 @@
   const moveShelf = () =>
     run((id) => library.update(id, { wishlist: shelf === 'owned' }), shelf === 'owned' ? t.bulkMovedToWishlist(ids.length) : t.bulkMovedToLibrary(ids.length));
   function remove() {
-    if (!confirm(t.bulkDeleteConfirm(ids.length))) return;
     run((id) => library.remove(id), t.bulkDeleted(ids.length));
   }
 </script>
@@ -84,7 +84,7 @@
       <button class="small" disabled={!ids.length} onclick={() => (panel = 'category')}>{t.fieldLabels.category}</button>
       <button class="small" disabled={!ids.length} onclick={() => (panel = 'tag')}>{t.fieldLabels.tags}</button>
       <button class="small" disabled={!ids.length || busy} onclick={moveShelf}>{shelf === 'owned' ? t.toWishlist : t.boughtIt}</button>
-      <button class="small danger" disabled={!ids.length || busy} onclick={remove}>{t.deleteBook}</button>
+      <ConfirmButton class="small danger" disabled={!ids.length || busy} label={t.deleteBook} confirmLabel={t.confirmDelete} onconfirm={remove} />
     </div>
   </div>
 </div>

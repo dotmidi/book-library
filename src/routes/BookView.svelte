@@ -1,5 +1,7 @@
 <script lang="ts">
   import Cover from '../components/Cover.svelte';
+  import SeriesShelf from '../components/SeriesShelf.svelte';
+  import ConfirmButton from '../components/ConfirmButton.svelte';
   import { library } from '../lib/store/library.svelte';
   import { lookupBook, fillBlanks } from '../lib/lookup/service';
   import { t } from '../lib/strings';
@@ -14,9 +16,11 @@
   let {
     id = '',
     friendBook,
+    friendBooks = [],
+    friendCode = '',
     backHref = '#/',
     backLabel = t.navLibrary,
-  }: { id?: string; friendBook?: Book; backHref?: string; backLabel?: string } = $props();
+  }: { id?: string; friendBook?: Book; friendBooks?: Book[]; friendCode?: string; backHref?: string; backLabel?: string } = $props();
   const readonly = $derived(Boolean(friendBook));
   const book = $derived(friendBook ?? library.get(id));
   let lending = $state(false);
@@ -37,7 +41,6 @@
 
   async function remove() {
     if (!book) return;
-    if (!confirm(t.deleteConfirm(displayTitle(book, t.untitled)))) return;
     await library.remove(book.id);
     toast.show(t.deleted);
     go('/');
@@ -153,8 +156,18 @@
       {/if}
     </div>
 
+    {/if}
+
+    <SeriesShelf
+      {book}
+      books={readonly ? friendBooks : library.books}
+      {readonly}
+      bookHref={(b) => (readonly ? `#/friends/${friendCode}/book/${b.id}` : `#/book/${b.id}`)}
+    />
+
+    {#if !readonly}
     <div class="danger-zone">
-      <button class="danger" onclick={remove}>{t.deleteBook}</button>
+      <ConfirmButton class="danger" label={t.deleteBook} confirmLabel={t.confirmDelete} onconfirm={remove} />
     </div>
     {/if}
   {/if}

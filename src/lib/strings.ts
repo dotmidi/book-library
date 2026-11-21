@@ -130,7 +130,9 @@ export const t = {
   lend: 'Lend',
   markReturned: 'It’s back',
   deleteBook: 'Delete',
-  deleteConfirm: (title: string) => `Delete “${title}” from your library? This also removes the row from your Google Sheet.`,
+  confirmDelete: 'Tap again to delete',
+  saveAgainForCopy: (owned: string) => `${owned}. Save again to add another copy.`,
+  confirmRemove: 'Remove?',
   deleted: 'Book deleted',
   bookNotFound: 'This book isn’t in your library (it may have been deleted).',
   backToLibrary: 'Back to library',
@@ -170,8 +172,9 @@ export const t = {
   signInMethodHelp: 'Turn this on if the Google sign-in window doesn’t work on your device.',
   switchAccount: 'Switch Google account',
   signOut: 'Sign out',
-  signOutPendingConfirm: (n: number) =>
-    `${n} ${n === 1 ? 'change has' : 'changes have'} not been saved to your sheet yet. They stay on this device and are saved next time you sign in. Sign out anyway?`,
+  confirmSignOut: 'Tap again to sign out',
+  signOutPendingNote: (n: number) =>
+    `${n} ${n === 1 ? 'change hasn’t' : 'changes haven’t'} been saved to your sheet yet. They stay on this device and are saved next time you sign in.`,
   version: (v: string) => `Version ${v}`,
 
   // import
@@ -231,11 +234,22 @@ export const t = {
   bulkMovedToWishlist: (n: number) => `Moved ${n} to your wishlist`,
   bulkMovedToLibrary: (n: number) => `Moved ${n} to your library`,
   bulkDeleted: (n: number) => `Deleted ${n} ${n === 1 ? 'book' : 'books'}`,
-  bulkDeleteConfirm: (n: number) => `Delete ${n} ${n === 1 ? 'book' : 'books'}? This also removes the rows from your Google Sheet.`,
 
   // import
   matchByTitle: (n: number) => `Find covers and details for the ${n} ${n === 1 ? 'book' : 'books'} without ISBN (matched by title and author)`,
   importToWishlist: 'Put these on my wishlist',
+
+  // series
+  seriesVol: (n: number) => `Vol. ${n}`,
+  seriesBook: (n: number) => `Book ${n}`,
+  seriesOut: (date: string) => {
+    const d = new Date(`${date}T12:00:00`);
+    const sameYear = d.getFullYear() === new Date().getFullYear();
+    return `Out ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', ...(sameYear ? {} : { year: 'numeric' }) })}`;
+  },
+  seriesAddWishlist: '+ Wishlist',
+  seriesAddAllMissing: 'Add all missing to wishlist',
+  addedToWishlist: (n: number) => `Added ${n} to your wishlist`,
   importMatched: (n: number) => `Details were found for ${n}.`,
 
   // friends
@@ -254,12 +268,12 @@ export const t = {
   copyThis: 'Copy this:',
   shareText: (name: string) => `${name}’s book library`,
   stopSharing: 'Stop sharing',
-  stopSharingConfirm: 'Stop sharing? Your link will stop working for everyone, including friends who already added you.',
+  confirmStopSharing: 'Tap again to stop sharing',
+  stopSharingNote: 'Your link will stop working for everyone, including friends who already added you.',
   friendsLibraries: 'Friends’ libraries',
   noFriendsYet: 'No friends added yet. Ask a friend for their link, or paste their code below.',
   friendLibraryName: (name: string) => `${name}’s library`,
   removeFriend: 'Remove',
-  removeFriendConfirm: (name: string) => `Remove ${name}’s library from your Friends tab?`,
   addFriendLabel: 'Add a friend’s library',
   addFriendPlaceholder: 'Paste their link or code',
   addFriendQuestion: (name: string, n: number) => `Add ${name}’s library (${n} ${n === 1 ? 'book' : 'books'})?`,
