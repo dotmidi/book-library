@@ -105,6 +105,11 @@
     if (selected[id]) delete selected[id];
     else selected[id] = true;
   }
+  function pick(e: MouseEvent, id: string) {
+    if (!selecting) return;
+    e.preventDefault();
+    toggle(id);
+  }
   function selectAllShown() {
     const all = filtered.every((b) => selected[b.id]);
     selected = all ? {} : Object.fromEntries(filtered.map((b) => [b.id, true as const]));
@@ -119,7 +124,7 @@
   <div class="head">
     <h1>{heading}</h1>
     {#if !readonly && books.length}
-      <button class="small" onclick={() => (selecting ? stopSelecting() : (selecting = true))}>{selecting ? t.done : t.select}</button>
+      <button class="small selbtn" onclick={() => (selecting ? stopSelecting() : (selecting = true))}>{selecting ? t.done : t.select}</button>
     {/if}
   </div>
 
@@ -205,20 +210,21 @@
       <ul class="grid">
         {#each visible as b (b.id)}
           <li>
-            {#if selecting}
-              <button class="tile selectable" class:sel={selected[b.id]} aria-pressed={!!selected[b.id]} onclick={() => toggle(b.id)}>
-                <span class="check" class:on={selected[b.id]} aria-hidden="true"></span>
-                <Cover book={b} />
-                <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{displayTitle(b, t.untitled)}</span>
-              </button>
-            {:else}
-              <a href={bookHref(b)} class="tile">
-                <Cover book={b} />
-                <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{displayTitle(b, t.untitled)}</span>
-                {#if b.authors.length}<span class="tauthor muted">{b.authors[0]}</span>{/if}
-                <span class="badges">{@render badges(b, false)}</span>
-              </a>
-            {/if}
+            <!-- Same tile in both modes (no layout jump); in select mode a tap selects instead of opening. -->
+            <a
+              href={bookHref(b)}
+              class="tile"
+              class:sel={selecting && selected[b.id]}
+              role={selecting ? 'checkbox' : undefined}
+              aria-checked={selecting ? !!selected[b.id] : undefined}
+              onclick={(e) => pick(e, b.id)}
+            >
+              {#if selecting}<span class="check" class:on={selected[b.id]} aria-hidden="true"></span>{/if}
+              <Cover book={b} />
+              <span class="ttitle">{#if locationFlag(b.location)}<span class="flag">{locationFlag(b.location)}</span>{/if}{displayTitle(b, t.untitled)}</span>
+              {#if b.authors.length}<span class="tauthor muted">{b.authors[0]}</span>{/if}
+              <span class="badges">{@render badges(b, false)}</span>
+            </a>
           </li>
         {/each}
       </ul>
@@ -226,22 +232,22 @@
       <ul class="list">
         {#each visible as b (b.id)}
           <li>
-            {#if selecting}
-              <button class="lrow selectable" class:sel={selected[b.id]} aria-pressed={!!selected[b.id]} onclick={() => toggle(b.id)}>
-                <span class="check inline" class:on={selected[b.id]} aria-hidden="true"></span>
-                <Cover book={b} size="sm" />
-                <span class="linfo"><strong>{displayTitle(b, t.untitled)}</strong><span class="badges">{@render badges(b, true)}</span></span>
-              </button>
-            {:else}
-              <a href={bookHref(b)} class="lrow">
-                <Cover book={b} size="sm" />
-                <span class="linfo">
-                  <strong>{displayTitle(b, t.untitled)}</strong>
-                  <span class="muted small">{[b.authors.join(', '), b.year].filter(Boolean).join(' · ')}</span>
-                  <span class="badges">{@render badges(b, true)}</span>
-                </span>
-              </a>
-            {/if}
+            <a
+              href={bookHref(b)}
+              class="lrow"
+              class:sel={selecting && selected[b.id]}
+              role={selecting ? 'checkbox' : undefined}
+              aria-checked={selecting ? !!selected[b.id] : undefined}
+              onclick={(e) => pick(e, b.id)}
+            >
+              {#if selecting}<span class="check small" class:on={selected[b.id]} aria-hidden="true"></span>{/if}
+              <Cover book={b} size="sm" />
+              <span class="linfo">
+                <strong>{displayTitle(b, t.untitled)}</strong>
+                <span class="muted small">{[b.authors.join(', '), b.year].filter(Boolean).join(' · ')}</span>
+                <span class="badges">{@render badges(b, true)}</span>
+              </span>
+            </a>
           </li>
         {/each}
       </ul>
@@ -262,6 +268,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+  }
+  .selbtn {
+    min-width: 5.5rem;
   }
   .head h1 {
     margin: 0;
@@ -371,24 +380,15 @@
     text-decoration: none;
     position: relative;
   }
-  button.tile,
-  button.lrow {
-    border: 0;
-    background: none;
-    padding: 0;
-    min-height: 0;
-    width: 100%;
-    text-align: left;
-    align-items: stretch;
-    justify-content: flex-start;
-    font-weight: inherit;
-    border-radius: 8px;
-  }
-  .selectable.sel {
+  /* Selection only draws on top (outline, circle): nothing moves when Select is turned on. */
+  .tile.sel,
+  .lrow.sel {
     outline: 3px solid var(--primary);
     outline-offset: 2px;
+    border-radius: 8px;
   }
   .check {
+    pointer-events: none;
     position: absolute;
     top: 6px;
     right: 6px;
@@ -407,9 +407,13 @@
     background: var(--primary);
     box-shadow: inset 0 0 0 4px rgb(255 255 255 / 0.9);
   }
-  .check.inline {
-    position: static;
-    flex-shrink: 0;
+  /* List view: a smaller circle over the corner of the small cover. */
+  .check.small {
+    top: calc(0.6rem - 6px);
+    left: 30px;
+    right: auto;
+    width: 22px;
+    height: 22px;
   }
   .ttitle {
     font-weight: 600;
@@ -450,10 +454,7 @@
     color: inherit;
     text-decoration: none;
     align-items: center;
-  }
-  button.lrow {
-    align-items: center;
-    padding: 0.6rem 0.25rem;
+    position: relative;
   }
   .linfo {
     display: flex;

@@ -59,6 +59,11 @@ body {
   background: var(--bg);
 }
 
+/* Always keep room for the scrollbar, so pages don't shift sideways when it appears or disappears. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   min-height: 100dvh;
   overscroll-behavior-y: none;
