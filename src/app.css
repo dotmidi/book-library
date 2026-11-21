@@ -59,8 +59,11 @@ body {
   background: var(--bg);
 }
 
-/* Always keep room for the scrollbar, so pages don't shift sideways when it appears or disappears. */
+/* Always show the scrollbar track (greyed out when nothing scrolls), so pages don't shift
+   sideways when switching between short and long pages. scrollbar-gutter alone isn't
+   applied to the page root in every browser. Phones use overlay scrollbars, unaffected. */
 html {
+  overflow-y: scroll;
   scrollbar-gutter: stable;
 }
 
