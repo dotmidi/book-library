@@ -80,7 +80,7 @@ your library. When you buy one, open it and tap **Bought it**. Scanning it again
 
 - **Library** has two shelves at the top: **My books** and **Wishlist**. Search by title, author or ISBN.
 - **Filters:**
-  - **location**; "No location set" finds books you still need to sort
+  - **location** (with country flags); "No location set" finds books you still need to sort
   - **category** (Novel, Manga, Comic, Artbook, CD, Vinyl…)
   - **tag**
 - **Sorting:** recently added, title, author or year. Switch between **Covers** and **List**.

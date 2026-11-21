@@ -4,6 +4,7 @@
   import { t } from '../lib/strings';
   import { displayTitle, fold, matchesQuery, sortKeyAuthor, uniqueSorted } from '../lib/search';
   import type { Book } from '../lib/types';
+  import { locationFlag } from '../lib/countries';
 
   let {
     books,
@@ -158,7 +159,7 @@
       {#if locations.length}
         <select bind:value={location} aria-label={t.fieldLabels.location}>
           <option value="">{t.allLocations}</option>
-          {#each locations as l}<option value={l}>{l}</option>{/each}
+          {#each locations as l}<option value={l}>{locationFlag(l) ? `${locationFlag(l)} ` : ''}{l}</option>{/each}
           <option value={NONE}>{t.noLocation}</option>
         </select>
       {/if}
