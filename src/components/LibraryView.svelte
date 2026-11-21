@@ -444,6 +444,18 @@
   .badges:empty {
     display: none;
   }
+  /* Long labels ("Education / Textbooks") stay inside their own tile, ending in "…". */
+  .grid li,
+  .badges {
+    min-width: 0;
+  }
+  .badges :global(.chip) {
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
   .list li + li {
     border-top: 1px solid var(--border);
   }
